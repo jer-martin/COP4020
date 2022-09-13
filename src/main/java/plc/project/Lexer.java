@@ -72,7 +72,17 @@ public final class Lexer {
      * return true if the next characters are {@code 'a', 'b', 'c'}.
      */
     public boolean peek(String... patterns) {
-        throw new UnsupportedOperationException(); //TODO (in Lecture)
+
+        for (int i = 0; i < patterns.length; i++ ) {
+
+            String.valueOf('a').matches("[A-Za-z]");
+
+            if (!chars.has(i) ||
+                !String.valueOf(chars.get(i)).matches(patterns[i]) ) {
+                return false;
+            }
+         }
+        return true;
     }
 
     /**
