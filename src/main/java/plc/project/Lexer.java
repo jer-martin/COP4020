@@ -23,13 +23,17 @@ public final class Lexer {
         chars = new CharStream(input);
     }
 
+
     /**
      * Repeatedly lexes the input using {@link #lexToken()}, also skipping over
      * whitespace where appropriate.
      */
     public List<Token> lex() {
-        lexToken();
-        return new ArrayList<Token>();
+        ArrayList<Token> tokens = new ArrayList<Token>();
+        while(chars.has(0)) {
+            tokens.add(lexToken());
+        }
+        return tokens;
     }
 
     /**
@@ -41,12 +45,18 @@ public final class Lexer {
      * by {@link #lex()}
      */
     public Token lexToken() {
-        System.out.println(peek(chars.input));
-        return new Token(Token.Type.IDENTIFIER, "fart", 0);
+        if(peek("[A-Za-z_]")) {
+            return lexIdentifier();
+        }
+        throw new UnsupportedOperationException(); // removing this prevents it from running... no return token
+                                                   // if you jump into next lex method
     }
 
     public Token lexIdentifier() {
-        throw new UnsupportedOperationException(); //TODO
+        System.out.println("Identifier located");
+        match("[A-Za-z_]"); // matches for identifier
+        while(match("[A-Za-z_]")); // steps through all chars, making sure they match
+        return chars.emit(Token.Type.IDENTIFIER);
     }
 
     public Token lexNumber() {
