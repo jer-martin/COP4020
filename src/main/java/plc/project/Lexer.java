@@ -1,5 +1,6 @@
 package plc.project;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,7 +28,8 @@ public final class Lexer {
      * whitespace where appropriate.
      */
     public List<Token> lex() {
-        throw new UnsupportedOperationException(); //TODO
+        lexToken();
+        return new ArrayList<Token>();
     }
 
     /**
@@ -39,7 +41,8 @@ public final class Lexer {
      * by {@link #lex()}
      */
     public Token lexToken() {
-        throw new UnsupportedOperationException(); //TODO
+        System.out.println(peek(chars.input));
+        return new Token(Token.Type.IDENTIFIER, "fart", 0);
     }
 
     public Token lexIdentifier() {
@@ -75,8 +78,6 @@ public final class Lexer {
 
         for (int i = 0; i < patterns.length; i++ ) {
 
-            String.valueOf('a').matches("[A-Za-z]");
-
             if (!chars.has(i) ||
                 !String.valueOf(chars.get(i)).matches(patterns[i]) ) {
                 return false;
@@ -91,7 +92,14 @@ public final class Lexer {
      * true. Hint - it's easiest to have this method simply call peek.
      */
     public boolean match(String... patterns) {
-        throw new UnsupportedOperationException(); //TODO (in Lecture)
+        boolean peek = peek(patterns);
+
+        if (peek) {
+            for (int i = 0; i < patterns.length; i++) {
+                chars.advance();
+            }
+        }
+        return peek;
     }
 
     /**

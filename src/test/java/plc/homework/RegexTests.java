@@ -163,7 +163,8 @@ public class RegexTests {
             Arguments.of("vertical seperator","\"brrantly|\"",true),
             Arguments.of("unterminated","\"unterminated",false),
             Arguments.of("quote then quote escape","\"quote\\\"",false),
-            Arguments.of("only terminating quote","beginning\"",false)
+            Arguments.of("only terminating quote","beginning\"",false),
+            Arguments.of("digits","\"123459\"",true)
         );
     }
 
