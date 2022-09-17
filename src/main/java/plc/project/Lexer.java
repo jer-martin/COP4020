@@ -54,8 +54,8 @@ public final class Lexer {
 
     public Token lexIdentifier() {
         System.out.println("Identifier located");
-        match("[A-Za-z_]"); // matches for identifier
-        while(match("[A-Za-z_]")); // steps through all chars, making sure they match
+        match("[A-Za-z_0-9]"); // matches for identifier
+        while(match("[A-Za-z_0-9]")); // steps through all chars, making sure they match
         return chars.emit(Token.Type.IDENTIFIER);
     }
 
