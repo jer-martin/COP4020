@@ -61,6 +61,9 @@ public final class Lexer {
         if(peek("'")) { // just checks for a single quote
             return lexCharacter();
         }
+        if(peek("\"")) { // just checks for a double quote
+            return lexString();
+        }
         if(peek("([<>!=] '='?|(.))")) { // checks for symbols
             return lexOperator();
         }
@@ -139,7 +142,14 @@ public final class Lexer {
     }
 
     public Token lexString() {
-        throw new UnsupportedOperationException(); //TODO
+        match("\"{1}");
+        while(match("[A-Za-z_,0-9]*")); // walks through and brings in all letters
+        //TODO: write escapes
+        if (peek("\"{1}")) {
+            match("\"{1}");
+            return chars.emit(Token.Type.STRING);
+        }
+        else throw new ParseException("expected closing quote", chars.index);
     }
 
     public void lexEscape() {

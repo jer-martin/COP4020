@@ -12,6 +12,9 @@ import java.util.stream.Stream;
 
 public class LexerTests {
 
+    // TODO: begin testing edge cases
+    // TODO: create a graph of the logic flow to assist in creating edge cases
+
     @ParameterizedTest
     @MethodSource
     void testIdentifier(String test, String input, boolean success) {
@@ -66,7 +69,7 @@ public class LexerTests {
     private static Stream<Arguments> testCharacter() {
         return Stream.of(
                 Arguments.of("Alphabetic", "\'c\'", true),
-                Arguments.of("Newline Escape", "\'\ \n\'", true),
+                Arguments.of("Newline Escape", "\'\\n\'", true),
                 Arguments.of("Empty", "\'\'", false),
                 Arguments.of("Multiple", "\'abc\'", false)
         );
