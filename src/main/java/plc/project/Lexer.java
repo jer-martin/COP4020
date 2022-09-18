@@ -51,11 +51,15 @@ public final class Lexer {
      */
 
     public Token lexToken() {
+        // TODO: convert to switches -- will be much faster
         if(peek("[A-Za-z_]")) { // checks for alpha only, because identifiers cant begin with a digit
                 return lexIdentifier();
         }
         if(peek("[0-9]+") || peek("[\\\\+-]?", "[0-9]+")) { // checks for numbers with and without sign
             return lexNumber();
+        }
+        if(peek("'")) { // just checks for a single quote
+            return lexCharacter();
         }
         if(peek("([<>!=] '='?|(.))")) { // checks for symbols
             return lexOperator();
@@ -98,7 +102,7 @@ public final class Lexer {
             }
             else {
                 System.out.println("trailing decimal found");
-                return lexOperator();
+                throw new ParseException("Trailing decimal", chars.index);
             }
         }
 
@@ -108,7 +112,23 @@ public final class Lexer {
     }
 
     public Token lexCharacter() {
-        throw new UnsupportedOperationException(); //TODO
+        System.out.println("char found");
+        match("'"); // takes in first quote
+        System.out.println("first quote");
+        if (peek("\\{1}")) { // checks for slash
+            match("\\{1}");
+            match("n{1}");
+            System.out.println("newline");
+        }
+        else if (peek(".{1}")) { //checks everything else
+            match(".{1}");
+            System.out.println("non newline");
+        }
+
+        if (peek("'")) match("'"); // takes in last quote
+        System.out.println("last quote");
+        System.out.println("Type emitted");
+        return chars.emit(Token.Type.CHARACTER);
     }
 
     public Token lexString() {
