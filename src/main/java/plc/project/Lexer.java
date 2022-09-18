@@ -31,7 +31,12 @@ public final class Lexer {
     public List<Token> lex() {
         ArrayList<Token> tokens = new ArrayList<Token>();
         while(chars.has(0)) {
-            tokens.add(lexToken());
+            if(!(match(" ") || match("\b") || match("\n") || match("\r") || match("\t"))) { // checks whitespace
+                tokens.add(lexToken());
+            }
+            else {
+                chars.skip();
+            }
         }
         return tokens;
     }
@@ -45,16 +50,19 @@ public final class Lexer {
      * by {@link #lex()}
      */
     public Token lexToken() {
-        if(peek("[A-Za-z_]")) {
-            return lexIdentifier();
+        if(peek("[A-Za-z_]")) { // checks for alpha only, because identifiers cant begin with a digit
+                return lexIdentifier();
+        }
+        if(peek("([<>!=] '='?|(.))")) {
+            return lexOperator();
         }
         throw new UnsupportedOperationException(); // removing this prevents it from running... no return token
-                                                   // if you jump into next lex method
+                                                   // if you jump into next lex method (at least immediately)
     }
 
     public Token lexIdentifier() {
         System.out.println("Identifier located");
-        match("[A-Za-z_0-9]"); // matches for identifier
+        match("[A-Za-z_0-9]"); // matches for identifier, adding numbers to allow for alphanumeric
         while(match("[A-Za-z_0-9]")); // steps through all chars, making sure they match
         return chars.emit(Token.Type.IDENTIFIER);
     }
@@ -76,7 +84,9 @@ public final class Lexer {
     }
 
     public Token lexOperator() {
-        throw new UnsupportedOperationException(); //TODO
+        System.out.println("Operator located");
+        match("([<>!=] '='?|(.))"); // matches for operator
+        return chars.emit(Token.Type.OPERATOR);
     }
 
     /**
