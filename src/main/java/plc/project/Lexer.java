@@ -120,8 +120,7 @@ public final class Lexer {
         System.out.println("first quote");
         if (peek("\\\\")) { // checks for slash
             match("\\\\");
-            match("[nr]{1}"); // checks for linefeed or carraige return
-            System.out.println("newline"); // TODO: write rest of escapes
+            lexEscape();
         }
         else if (peek(".{1}")) { //checks everything else
             match(".{1}"); // this causes empty chars to fail, because it is reading in the second quote
@@ -143,8 +142,12 @@ public final class Lexer {
 
     public Token lexString() {
         match("\"{1}");
-        while(match("[A-Za-z_,0-9]*")); // walks through and brings in all letters
-        //TODO: write escapes
+        while(match("[A-Za-z_,0-9]*(\\\\)*")) { // walks through and brings in all letters & digits
+            if (peek("(\\\\)*")) {
+                System.out.println("escape found");
+                lexEscape();
+            }
+        }
         if (peek("\"{1}")) {
             match("\"{1}");
             return chars.emit(Token.Type.STRING);
@@ -153,7 +156,19 @@ public final class Lexer {
     }
 
     public void lexEscape() {
-        throw new UnsupportedOperationException(); //TODO
+        if(peek("\\\\")) {
+            System.out.println("slash matched");
+            match("\\\\");
+        }
+
+        if(peek("[brnt\"'\\\\]")) {
+            System.out.println("supported escape found");
+            match("[brnt\"'\\\\]");
+        }
+        else {
+            System.out.println("unsupported escape");
+            throw new ParseException("unsupported escape character", chars.index);
+        }
     }
 
     public Token lexOperator() {
