@@ -115,7 +115,7 @@ public final class Lexer {
     }
 
     public Token lexCharacter() {
-        System.out.println("char found");
+        System.out.println("Char located");
         match("'"); // takes in first quote
         System.out.println("first quote");
         if (peek("\\\\")) { // checks for slash
@@ -144,7 +144,6 @@ public final class Lexer {
         match("\"{1}");
         while(match("[A-Za-z_,0-9]*(\\\\)*")) { // walks through and brings in all letters & digits
             if (peek("(\\\\)*")) {
-                System.out.println("escape found");
                 lexEscape();
             }
         }
@@ -156,6 +155,7 @@ public final class Lexer {
     }
 
     public void lexEscape() {
+        System.out.println("Escape located");
         if(peek("\\\\")) {
             System.out.println("slash matched");
             match("\\\\");

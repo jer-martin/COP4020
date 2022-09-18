@@ -115,14 +115,14 @@ public class LexerTests {
 
     private static Stream<Arguments> testExamples() {
         return Stream.of(
-                Arguments.of("Example 1", "LET x = 5;", Arrays.asList(
+                Arguments.of("Example 1", "LET x = 5;", Arrays.asList( //TODO: operator must go back into number, number must go back into op
                         new Token(Token.Type.IDENTIFIER, "LET", 0),
                         new Token(Token.Type.IDENTIFIER, "x", 4),
                         new Token(Token.Type.OPERATOR, "=", 6),
                         new Token(Token.Type.INTEGER, "5", 8),
                         new Token(Token.Type.OPERATOR, ";", 9)
                 )),
-                Arguments.of("Example 2", "print(\"Hello, World!\");", Arrays.asList(
+                Arguments.of("Example 2", "print(\"Hello, World!\");", Arrays.asList( // TODO: op must go into string, string must go back into op, op is only 1 char unless specified
                         new Token(Token.Type.IDENTIFIER, "print", 0),
                         new Token(Token.Type.OPERATOR, "(", 5),
                         new Token(Token.Type.STRING, "\"Hello, World!\"", 6),
