@@ -106,6 +106,10 @@ public final class Lexer {
                 while(match("[0-9]+"));
                 return chars.emit(Token.Type.INTEGER); // TODO: make this go into LexNumber() (or think of alternate implementation)
             }
+            else if (peek("([<>!=] '='?|(.))")) {
+                while (match("([<>!=] '='?|(.))"));
+                return chars.emit(Token.Type.OPERATOR); // branch of logic for double ops (!=, ==, etc)
+            }
         return chars.emit(Token.Type.OPERATOR);
     }
 
