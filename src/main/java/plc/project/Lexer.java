@@ -88,7 +88,7 @@ public final class Lexer {
             }
             else {
                 System.out.println("No decimal point after leading zero found");
-                return chars.emit(Token.Type.INTEGER);
+                throw new ParseException("expected decimal point after leading zero", chars.index);
             }
         }
 
@@ -115,17 +115,24 @@ public final class Lexer {
         System.out.println("char found");
         match("'"); // takes in first quote
         System.out.println("first quote");
-        if (peek("\\{1}")) { // checks for slash
-            match("\\{1}");
-            match("n{1}");
-            System.out.println("newline");
+        if (peek("\\\\")) { // checks for slash
+            match("\\\\");
+            match("[nr]{1}"); // checks for linefeed or carraige return
+            System.out.println("newline"); // TODO: write rest of escapes
         }
         else if (peek(".{1}")) { //checks everything else
-            match(".{1}");
+            match(".{1}"); // this causes empty chars to fail, because it is reading in the second quote
+                                    // as the char between the two quotes
             System.out.println("non newline");
         }
+        System.out.println("about to take in last quote");
 
-        if (peek("'")) match("'"); // takes in last quote
+        if (peek("'")) match("'"); // takes in closing quote
+        else {
+            System.out.println("no closing quote found");
+            throw new ParseException("expected closing char quote", chars.index);
+        }
+
         System.out.println("last quote");
         System.out.println("Type emitted");
         return chars.emit(Token.Type.CHARACTER);
