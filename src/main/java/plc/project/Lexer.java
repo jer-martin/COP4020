@@ -74,13 +74,14 @@ public final class Lexer {
     public Token lexNumber() {
         System.out.println("Number located");
         match("[0-9]+"); // matches for initial number or neg sign
-        if (peek("(.){1}")) {
+        if (peek("(\\.){1}")) {
             System.out.println("Decimal point found");
-            while (match("[0-9]+")) ;
+            while (match("[0-9]+")) ; // takes in the rest of the digits
             return chars.emit(Token.Type.DECIMAL);
         }
         // TODO: ADD DECIMAL SUPPORT AND PROPER INTEGER SUPPORT
         System.out.println("No decimal point found");
+        while (match("[0-9]+")) ; // takes in the rest of the digits
         return chars.emit(Token.Type.INTEGER);
     }
 
@@ -99,9 +100,12 @@ public final class Lexer {
     public Token lexOperator() {
         System.out.println("Operator located");
         match("([<>!=] '='?|(.))"); // matches for operator
-        while(match("([<>!=] '='?|(.))")) {
-            if(!match("([<>!=] '='?|(.))") && match("[0-9]+")) lexNumber();
-        }
+
+            if (peek("[0-9]+")) {
+                System.out.println("Number located after operator");
+                while(match("[0-9]+"));
+                return chars.emit(Token.Type.INTEGER); // TODO: make this go into LexNumber() (or think of alternate implementation)
+            }
         return chars.emit(Token.Type.OPERATOR);
     }
 
