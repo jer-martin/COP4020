@@ -54,7 +54,7 @@ public final class Lexer {
         if(peek("[A-Za-z_]")) { // checks for alpha only, because identifiers cant begin with a digit
                 return lexIdentifier();
         }
-        if(peek("[0-9]+")) { // checks for numbers
+        if(peek("[0-9]+") || peek("[\\\\+-]?", "[0-9]+")) { // checks for numbers
             return lexNumber();
         }
         if(peek("([<>!=] '='?|(.))")) { // checks for symbols
@@ -72,8 +72,10 @@ public final class Lexer {
     }
 
     public Token lexNumber() {
+        if (peek("[\\\\+-]?")) match("[\\\\+-]?"); // takes in sign
+
         System.out.println("Number located");
-        if (peek("0")) {
+        if (peek("0")) { // leading zero check and logic branches
             System.out.println("leading 0 found");
             if (peek("(\\.){1}")) {
                 System.out.println("Decimal point found");
@@ -85,9 +87,14 @@ public final class Lexer {
                 return chars.emit(Token.Type.INTEGER);
             }
         }
+
+        while (match("[0-9]+")); // no leading zero logic branch
         if (peek("(\\.){1}")) {
+            match("(\\.){1}");
             System.out.println("Decimal point found");
-            while (match("[0-9]+")) ; // takes in the rest of the digits
+            if (peek("[0-9]+")) {
+                while (match("[0-9]+")) ; // takes in the rest of the digits
+            }
             return chars.emit(Token.Type.DECIMAL);
         }
         // TODO: ADD DECIMAL SUPPORT AND PROPER INTEGER SUPPORT
@@ -112,15 +119,10 @@ public final class Lexer {
         System.out.println("Operator located");
         match("([<>!=] '='?|(.))"); // matches for operator
 
-            if (peek("[0-9]+")) {
-                System.out.println("Number located after operator");
-                while(match("[0-9]+"));
-                return chars.emit(Token.Type.INTEGER); // TODO: make this go into LexNumber() (or think of alternate implementation)
-            }
-            else if (peek("([<>!=] '='?|(.))")) {
-                while (match("([<>!=] '='?|(.))"));
-                return chars.emit(Token.Type.OPERATOR); // branch of logic for double ops (!=, ==, etc)
-            }
+        if (peek("([<>!=] '='?|(.))")) {
+            while (match("([<>!=] '='?|(.))"));
+            return chars.emit(Token.Type.OPERATOR); // branch of logic for double ops (!=, ==, etc)
+        }
         return chars.emit(Token.Type.OPERATOR);
     }
 
