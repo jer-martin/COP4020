@@ -54,7 +54,7 @@ public final class Lexer {
         if(peek("[A-Za-z_]")) { // checks for alpha only, because identifiers cant begin with a digit
                 return lexIdentifier();
         }
-        if(peek("[0-9]+") || peek("[\\\\+-]?", "[0-9]+")) { // checks for numbers
+        if(peek("[0-9]+") || peek("[\\\\+-]?", "[0-9]+")) { // checks for numbers with and without sign
             return lexNumber();
         }
         if(peek("([<>!=] '='?|(.))")) { // checks for symbols
@@ -94,10 +94,14 @@ public final class Lexer {
             System.out.println("Decimal point found");
             if (peek("[0-9]+")) {
                 while (match("[0-9]+")) ; // takes in the rest of the digits
+                return chars.emit(Token.Type.DECIMAL);
             }
-            return chars.emit(Token.Type.DECIMAL);
+            else {
+                System.out.println("trailing decimal found");
+                return lexOperator();
+            }
         }
-        // TODO: ADD DECIMAL SUPPORT AND PROPER INTEGER SUPPORT
+
         System.out.println("No decimal point found");
         while (match("[0-9]+")) ; // takes in the rest of the digits
         return chars.emit(Token.Type.INTEGER);
