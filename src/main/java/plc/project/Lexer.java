@@ -49,11 +49,15 @@ public final class Lexer {
      * The next character should start a valid token since whitespace is handled
      * by {@link #lex()}
      */
+
     public Token lexToken() {
         if(peek("[A-Za-z_]")) { // checks for alpha only, because identifiers cant begin with a digit
                 return lexIdentifier();
         }
-        if(peek("([<>!=] '='?|(.))")) {
+        if(peek("[0-9]+")) { // checks for numbers, because identifiers cant begin with digit
+            return lexNumber();
+        }
+        if(peek("([<>!=] '='?|(.))")) { // checks for symbols
             return lexOperator();
         }
         throw new UnsupportedOperationException(); // removing this prevents it from running... no return token
@@ -68,7 +72,10 @@ public final class Lexer {
     }
 
     public Token lexNumber() {
-        throw new UnsupportedOperationException(); //TODO
+        System.out.println("Number located");
+        match("[0-9]+"); // matches for number
+        // TODO: ADD DECIMAL SUPPORT
+        return chars.emit(Token.Type.INTEGER);
     }
 
     public Token lexCharacter() {
