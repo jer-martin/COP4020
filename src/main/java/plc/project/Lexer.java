@@ -54,7 +54,7 @@ public final class Lexer {
         if(peek("[A-Za-z_]")) { // checks for alpha only, because identifiers cant begin with a digit
                 return lexIdentifier();
         }
-        if(peek("[0-9]+")) { // checks for numbers, because identifiers cant begin with digit
+        if(peek("[0-9]+")) { // checks for numbers
             return lexNumber();
         }
         if(peek("([<>!=] '='?|(.))")) { // checks for symbols
@@ -73,8 +73,14 @@ public final class Lexer {
 
     public Token lexNumber() {
         System.out.println("Number located");
-        match("[0-9]+"); // matches for number
-        // TODO: ADD DECIMAL SUPPORT
+        match("[0-9]+"); // matches for initial number or neg sign
+        if (peek("(.){1}")) {
+            System.out.println("Decimal point found");
+            while (match("[0-9]+")) ;
+            return chars.emit(Token.Type.DECIMAL);
+        }
+        // TODO: ADD DECIMAL SUPPORT AND PROPER INTEGER SUPPORT
+        System.out.println("No decimal point found");
         return chars.emit(Token.Type.INTEGER);
     }
 
@@ -93,6 +99,9 @@ public final class Lexer {
     public Token lexOperator() {
         System.out.println("Operator located");
         match("([<>!=] '='?|(.))"); // matches for operator
+        while(match("([<>!=] '='?|(.))")) {
+            if(!match("([<>!=] '='?|(.))") && match("[0-9]+")) lexNumber();
+        }
         return chars.emit(Token.Type.OPERATOR);
     }
 
