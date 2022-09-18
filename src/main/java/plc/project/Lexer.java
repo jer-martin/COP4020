@@ -73,7 +73,18 @@ public final class Lexer {
 
     public Token lexNumber() {
         System.out.println("Number located");
-        match("[0-9]+"); // matches for initial number or neg sign
+        if (peek("0")) {
+            System.out.println("leading 0 found");
+            if (peek("(\\.){1}")) {
+                System.out.println("Decimal point found");
+                while (match("[0-9]+")) ; // takes in the rest of the digits
+                return chars.emit(Token.Type.DECIMAL);
+            }
+            else {
+                System.out.println("No decimal point after leading zero found");
+                return chars.emit(Token.Type.INTEGER);
+            }
+        }
         if (peek("(\\.){1}")) {
             System.out.println("Decimal point found");
             while (match("[0-9]+")) ; // takes in the rest of the digits
