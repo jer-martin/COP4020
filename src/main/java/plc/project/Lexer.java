@@ -142,10 +142,11 @@ public final class Lexer {
 
     public Token lexString() {
         match("\"{1}");
-        while(match("[A-Za-z_,0-9]*(\\\\)*")) { // walks through and brings in all letters & digits
+        while(match("[A-Za-z_,0-9!\\.]*(\\\\)*\\s*")) { // walks through and brings in all letters & digits
             if (peek("(\\\\)*")) {
                 lexEscape();
             }
+            if (peek("\\s*")) match("\\s*");
         }
         if (peek("\"{1}")) {
             match("\"{1}");
@@ -173,12 +174,14 @@ public final class Lexer {
 
     public Token lexOperator() {
         System.out.println("Operator located");
-        match("([<>!=] '='?|(.))"); // matches for operator
 
-        if (peek("([<>!=] '='?|(.))")) {
-            while (match("([<>!=] '='?|(.))"));
-            return chars.emit(Token.Type.OPERATOR); // branch of logic for double ops (!=, ==, etc)
+
+        if (match("<","=")|match(">","=")|match("!","=")|match("=","=")){
+            System.out.println("match double");
+            return chars.emit(Token.Type.OPERATOR);
         }
+
+        match("([<>!=] '='?|(.))"); // matches for single operator
         return chars.emit(Token.Type.OPERATOR);
     }
 
