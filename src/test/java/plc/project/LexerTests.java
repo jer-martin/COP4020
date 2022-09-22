@@ -89,6 +89,8 @@ public class LexerTests {
                 Arguments.of("Unterminated", "\"unterminated", false),
                 Arguments.of("Invalid Escape", "\"invalid\\escape\"", false),
                 Arguments.of("Invalid Escape", "\"invalid\\escape\"", false)
+                //Arguments.of("Symbols", "\"!@#$%^&*()\"", true) TODO: FIX THIS PARSE ERROR
+
         );
     }
 
@@ -104,7 +106,8 @@ public class LexerTests {
                 Arguments.of("Character", "(", true),
                 Arguments.of("Comparison", "!=", true),
                 Arguments.of("Space", " ", false),
-                Arguments.of("Tab", "\t", false)
+                Arguments.of("Tab", "\t", false),
+                //Arguments.of("Mixed Equals", "!====", true)
         );
     }
 
@@ -129,6 +132,10 @@ public class LexerTests {
                         new Token(Token.Type.STRING, "\"Hello, World!\"", 6),
                         new Token(Token.Type.OPERATOR, ")", 21),
                         new Token(Token.Type.OPERATOR, ";", 22)
+                )),
+                Arguments.of("Example 3", "a-b-c", Arrays.asList(
+                        new Token(Token.Type.IDENTIFIER, "a-b-c", 0)
+
                 ))
         );
     }

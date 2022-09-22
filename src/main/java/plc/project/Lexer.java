@@ -73,8 +73,8 @@ public final class Lexer {
 
     public Token lexIdentifier() {
         System.out.println("Identifier located");
-        match("[A-Za-z_0-9]"); // matches for identifier, adding numbers to allow for alphanumeric
-        while(match("[A-Za-z_0-9]")); // steps through all chars, making sure they match
+        match("[A-Za-z_0-9-]"); // matches for identifier, adding numbers to allow for alphanumeric
+        while(match("[A-Za-z_0-9-]")); // steps through all chars, making sure they match
         return chars.emit(Token.Type.IDENTIFIER);
     }
 
@@ -176,10 +176,27 @@ public final class Lexer {
         System.out.println("Operator located");
 
 
-        if (match("<","=")|match(">","=")|match("!","=")|match("=","=")){
+        if (peek("<","=")) {
+            match("<","=");
             System.out.println("match double");
             return chars.emit(Token.Type.OPERATOR);
         }
+        else if (peek(">","=")){
+            match(">","=");
+            System.out.println("match double");
+            return chars.emit(Token.Type.OPERATOR);
+        }
+        else if(peek("!","=")) {
+            match("!","=");
+            System.out.println("match double");
+            return chars.emit(Token.Type.OPERATOR);
+        }
+        else if(peek("=","=")){
+            match("=","=");
+            System.out.println("match double");
+            return chars.emit(Token.Type.OPERATOR);
+        }
+
 
         match("([<>!=] '='?|(.))"); // matches for single operator
         return chars.emit(Token.Type.OPERATOR);

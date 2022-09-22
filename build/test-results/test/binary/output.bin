@@ -1,0 +1,64 @@
+VWChar located
+VWfirst quote
+VWnon newline
+VWabout to take in last quote
+VWlast quote
+VWType emitted
+VXChar located
+VXfirst quote
+VXEscape located
+VXsupported escape found
+VXabout to take in last quote
+VXlast quote
+VXType emitted
+VYChar located
+VYfirst quote
+VYnon newline
+VYabout to take in last quote
+VYno closing quote found
+VZChar located
+VZfirst quote
+VZnon newline
+VZabout to take in last quote
+VZno closing quote found
+V[Identifier located
+V[Identifier located
+V[Operator located
+V[Number located
+V[No decimal point found
+V[Operator located
+V\Identifier located
+V\Operator located
+V\Operator located
+V\Operator located
+V]Operator located
+V^Operator located
+V^match double
+VaNumber located
+VaDecimal point found
+VbNumber located
+VbDecimal point found
+VcNumber located
+VcDecimal point found
+Vctrailing decimal found
+VdOperator located
+VeNumber located
+VeNo decimal point found
+VfNumber located
+VfNo decimal point found
+VgNumber located
+VgNo decimal point found
+VhNumber located
+Vhleading 0 found
+Vh*No decimal point after leading zero found
+VkEscape located
+Vkslash matched
+Vksupported escape found
+VmEscape located
+Vmslash matched
+Vmunsupported escape
+VnIdentifier located
+VoIdentifier located
+VpOperator located
+VqNumber located
+VqNo decimal point found
