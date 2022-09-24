@@ -88,8 +88,9 @@ public class LexerTests {
                 Arguments.of("Newline Escape", "\"Hello,\\nWorld\"", true),
                 Arguments.of("Unterminated", "\"unterminated", false),
                 Arguments.of("Invalid Escape", "\"invalid\\escape\"", false),
-                Arguments.of("Invalid Escape", "\"invalid\\escape\"", false)
-                //Arguments.of("Symbols", "\"!@#$%^&*()\"", true) TODO: FIX THIS PARSE ERROR
+                Arguments.of("Invalid Escape", "\"invalid\\escape\"", false),
+                Arguments.of("single quote", "\"\'\"", true),
+                Arguments.of("Symbols", "\"!@#$%^&*()\"", true)
 
         );
     }
@@ -136,7 +137,16 @@ public class LexerTests {
                 Arguments.of("Example 3", "a-b-c", Arrays.asList(
                         new Token(Token.Type.IDENTIFIER, "a-b-c", 0)
 
+                )),
+                Arguments.of("Weird quotes", "\'\"\'string\"\'\"", Arrays.asList(
+                        new Token(Token.Type.CHARACTER, "'\"'", 0),
+                        new Token(Token.Type.IDENTIFIER, "string", 3),
+                        new Token(Token.Type.STRING, "\"\'\"", 9)
+
                 ))
+
+
+
         );
     }
 

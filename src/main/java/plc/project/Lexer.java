@@ -141,18 +141,27 @@ public final class Lexer {
     }
 
     public Token lexString() {
+        System.out.println("String Located");
         match("\"{1}");
-        while(match("[A-Za-z_,0-9!\\.]*(\\\\)*\\s*")) { // walks through and brings in all letters & digits
+        while(peek("[A-Za-z_,0-9!@#$%^&*()\\.]*(\\\\)*\\s*[']*")) { // walks through and brings in all letters & digits
+            if(peek("'*")) match("'*");
             if (peek("(\\\\)*")) {
                 lexEscape();
             }
-            if (peek("\\s*")) match("\\s*");
+            if (peek("\\s*")) {
+                match("\\s*");
+            }
+            match("[A-Za-z_,0-9!@#$%^&*()\\.]*[']*");
         }
-        if (peek("\"{1}")) {
+        if (peek("\"{1,2}")) {
+            System.out.println("closing quote found");
             match("\"{1}");
             return chars.emit(Token.Type.STRING);
         }
-        else throw new ParseException("expected closing quote", chars.index);
+        else {
+            System.out.println("closing quote not found");
+            throw new ParseException("expected closing quote", chars.index);
+        }
     }
 
     public void lexEscape() {
