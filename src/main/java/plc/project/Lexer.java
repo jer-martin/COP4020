@@ -52,7 +52,7 @@ public final class Lexer {
 
     public Token lexToken() {
         // TODO: convert to switches -- will be much faster
-        if(peek("[A-Za-z_]")) { // checks for alpha only, because identifiers cant begin with a digit
+        if(peek("[A-Za-z_@]")) { // checks for alpha only (and @), because identifiers cant begin with a digit
                 return lexIdentifier();
         }
         if(peek("[0-9]+") || peek("[\\\\+-]?", "[0-9]+")) { // checks for numbers with and without sign
@@ -73,7 +73,7 @@ public final class Lexer {
 
     public Token lexIdentifier() {
         System.out.println("Identifier located");
-        match("[A-Za-z_0-9-]"); // matches for identifier, adding numbers to allow for alphanumeric
+        match("[A-Za-z_0-9-@]"); // matches for identifier, adding numbers to allow for alphanumeric
         while(match("[A-Za-z_0-9-]")); // steps through all chars, making sure they match
         return chars.emit(Token.Type.IDENTIFIER);
     }

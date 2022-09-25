@@ -26,7 +26,8 @@ public class LexerTests {
                 Arguments.of("Alphabetic", "getName", true),
                 Arguments.of("Alphanumeric", "thelegend27", true),
                 Arguments.of("Leading Hyphen", "-five", false),
-                Arguments.of("Leading Digit", "1fish2fish3fishbluefish", false)
+                Arguments.of("Leading Digit", "1fish2fish3fishbluefish", false),
+                Arguments.of("paramterized test", "@ParameterizedTest", true)
         );
     }
 
@@ -142,6 +143,12 @@ public class LexerTests {
                         new Token(Token.Type.CHARACTER, "'\"'", 0),
                         new Token(Token.Type.IDENTIFIER, "string", 3),
                         new Token(Token.Type.STRING, "\"\'\"", 9)
+
+                )),
+                Arguments.of("mixed equals", "!====", Arrays.asList(
+                        new Token(Token.Type.OPERATOR, "!=", 0),
+                        new Token(Token.Type.OPERATOR, "==", 2),
+                        new Token(Token.Type.OPERATOR, "=", 4)
 
                 ))
 
