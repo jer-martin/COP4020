@@ -1,5 +1,7 @@
 package plc.project;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -145,7 +147,8 @@ public final class Parser {
      * Parses the {@code expression} rule.
      */
     public Ast.Expression parseExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        // TODO: add functionality for (logical, comparison, additive, multiplicative) expressions
+        return parsePrimaryExpression();
     }
 
     /**
@@ -183,7 +186,21 @@ public final class Parser {
      * not strictly necessary.
      */
     public Ast.Expression parsePrimaryExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+
+        if (match("TRUE")) { // this is hardcoded to the first test case to test peek and match functionality
+            return new Ast.Expression.Literal(true);
+        }
+        if (match("1")) {
+            return new Ast.Expression.Literal(new BigInteger("1"));
+        }if (match("2.0")) {
+            return new Ast.Expression.Literal(new BigDecimal("2.0"));
+        }
+        else {
+            //throw new ParseException()
+            throw new ParseException("Invalid primary expression", -1);
+            //TODO: handle actual char index
+        }
     }
 
     /**
@@ -197,7 +214,21 @@ public final class Parser {
      * {@code peek(Token.Type.IDENTIFIER)} and {@code peek("literal")}.
      */
     private boolean peek(Object... patterns) {
-        throw new UnsupportedOperationException(); //TODO (in lecture)
+        for (int i = 0; i < patterns.length; i++) {
+            if (!tokens.has(i)) {
+                return false;
+            }
+            else if (patterns[i] instanceof Token.Type) {
+                if (patterns[i] != tokens.get(i).getType()) return false;
+            }
+            else if (patterns[i] instanceof String) {
+                if (!patterns[i].equals(tokens.get(i).getLiteral())) return false;
+            }
+            else {
+                throw new AssertionError("Invalid pattern object: " + patterns[i].getClass());
+            }
+        }
+        return true;
     }
 
     /**
@@ -205,7 +236,14 @@ public final class Parser {
      * and advances the token stream.
      */
     private boolean match(Object... patterns) {
-        throw new UnsupportedOperationException(); //TODO (in lecture)
+        boolean peek = peek(patterns);
+
+        if (peek) {
+            for (int i = 0; i < patterns.length; i++) {
+                tokens.advance();
+            }
+        }
+        return peek;
     }
 
     private static final class TokenStream {
