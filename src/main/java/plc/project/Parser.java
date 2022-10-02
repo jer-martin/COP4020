@@ -222,11 +222,19 @@ public final class Parser {
         }
 
         if (match(Token.Type.STRING)) { // string located
-            String out = (tokens.get(-1).getLiteral()); //
+            String out = (tokens.get(-1).getLiteral());
+
+            if (out.contains("\\")) { // this means there is an escape
+                out = out.replace("\\n", "\n");
+            }
+
             return new Ast.Expression.Literal(out.substring(1, out.length() - 1));
         }
 
+
+
         //TODO: add escape functionality
+            // would i do this within the if statements for string?
 
         // TODO: paren () expression
         // TODO: bracket [] expression
@@ -234,7 +242,7 @@ public final class Parser {
 
         else {
             //throw new ParseException()
-            throw new ParseException("Invalid primary expression", -1);
+            throw new ParseException("Invalid primary expression", tokens.index);
             //TODO: handle actual char index
         }
     }
