@@ -188,7 +188,7 @@ public final class Parser {
     public Ast.Expression parsePrimaryExpression() throws ParseException {
         //throw new UnsupportedOperationException(); //TODO
 
-
+        // i could make these a switch statement... but will I? who knows........
 
         if (match("TRUE")) { // this is hardcoded to the first test case to test peek and match functionality
             return new Ast.Expression.Literal(true);
@@ -217,15 +217,21 @@ public final class Parser {
         }
 
         if (match(Token.Type.CHARACTER)) { // char located
-            String out = (tokens.get(-1).getLiteral());
+            String out = (tokens.get(-1).getLiteral()); //
             return new Ast.Expression.Literal(out.charAt(1));
         }
+
+        if (match(Token.Type.STRING)) { // string located
+            String out = (tokens.get(-1).getLiteral()); //
+            return new Ast.Expression.Literal(out.substring(1, out.length() - 1));
+        }
+
+        //TODO: add escape functionality
 
         // TODO: paren () expression
         // TODO: bracket [] expression
 
-        // TODO: if match char
-        // TODO: if match string
+
         else {
             //throw new ParseException()
             throw new ParseException("Invalid primary expression", -1);
