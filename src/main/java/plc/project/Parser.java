@@ -204,12 +204,16 @@ public final class Parser {
 //        if (match("1")) { // if match digit no decimal >> parse int (immutable?)
 //            return new Ast.Expression.Literal(new BigInteger("1"));
 //        }
-        if (match("2.0")) { // if match digit w decimal >> parse dec (immutable)
-            return new Ast.Expression.Literal(new BigDecimal("2.0"));
+//        if (match("2.0")) { // if match digit w decimal >> parse dec (immutable)
+//            return new Ast.Expression.Literal(new BigDecimal("2.0"));
+//        }
+
+        if (match(Token.Type.INTEGER)) { // integer located
+            return new Ast.Expression.Literal(new BigInteger(tokens.get(-1).getLiteral()));
         }
 
-        if (match(Token.Type.INTEGER)) {
-            return new Ast.Expression.Literal(new BigInteger(tokens.get(-1).getLiteral()));
+        if (match(Token.Type.DECIMAL)) { // decimal located
+            return new Ast.Expression.Literal(new BigDecimal(tokens.get(-1).getLiteral()));
         }
 
         // TODO: paren () expression
