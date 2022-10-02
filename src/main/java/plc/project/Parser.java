@@ -216,6 +216,11 @@ public final class Parser {
             return new Ast.Expression.Literal(new BigDecimal(tokens.get(-1).getLiteral()));
         }
 
+        if (match(Token.Type.CHARACTER)) { // char located
+            String out = (tokens.get(-1).getLiteral());
+            return new Ast.Expression.Literal(out.charAt(1));
+        }
+
         // TODO: paren () expression
         // TODO: bracket [] expression
 
