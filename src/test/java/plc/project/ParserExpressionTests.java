@@ -77,6 +77,10 @@ final class ParserExpressionTests {
                         Arrays.asList(new Token(Token.Type.IDENTIFIER, "TRUE", 0)),
                         new Ast.Expression.Literal(Boolean.TRUE)
                 ),
+                Arguments.of("Boolean Literal 2",
+                        Arrays.asList(new Token(Token.Type.IDENTIFIER, "FALSE", 0)),
+                        new Ast.Expression.Literal(Boolean.FALSE)
+                ),
                 Arguments.of("Integer Literal",
                         Arrays.asList(new Token(Token.Type.INTEGER, "1", 0)),
                         new Ast.Expression.Literal(new BigInteger("1"))

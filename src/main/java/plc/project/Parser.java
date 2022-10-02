@@ -188,14 +188,35 @@ public final class Parser {
     public Ast.Expression parsePrimaryExpression() throws ParseException {
         //throw new UnsupportedOperationException(); //TODO
 
+
+
         if (match("TRUE")) { // this is hardcoded to the first test case to test peek and match functionality
             return new Ast.Expression.Literal(true);
         }
-        if (match("1")) {
-            return new Ast.Expression.Literal(new BigInteger("1"));
-        }if (match("2.0")) {
+
+        if (match("FALSE")) {
+            return new Ast.Expression.Literal(false);
+        }
+        // this may also just be how you do true/false
+        // TODO: TRUE/FALSE/NIL
+
+        // THIS IS HARDCODED - MATCH CAN ALSO MATCH TYPES
+//        if (match("1")) { // if match digit no decimal >> parse int (immutable?)
+//            return new Ast.Expression.Literal(new BigInteger("1"));
+//        }
+        if (match("2.0")) { // if match digit w decimal >> parse dec (immutable)
             return new Ast.Expression.Literal(new BigDecimal("2.0"));
         }
+
+        if (match(Token.Type.INTEGER)) {
+            return new Ast.Expression.Literal(new BigInteger(tokens.get(-1).getLiteral()));
+        }
+
+        // TODO: paren () expression
+        // TODO: bracket [] expression
+
+        // TODO: if match char
+        // TODO: if match string
         else {
             //throw new ParseException()
             throw new ParseException("Invalid primary expression", -1);
