@@ -225,7 +225,13 @@ public final class Parser {
             String out = (tokens.get(-1).getLiteral());
 
             if (out.contains("\\")) { // this means there is an escape
-                out = out.replace("\\n", "\n");
+                out = out.replace("\\n", "\n"); // will simply replace the escape with its literal, must add all supported escs
+                out = out.replace("\\b", "\b");
+                out = out.replace("\\r", "\r");
+                out = out.replace("\\t", "\t");
+                out = out.replace("\\'", "\'");
+                out = out.replace("\\\"", "\"");
+                out = out.replace("\\\\", "\\");
             }
 
             return new Ast.Expression.Literal(out.substring(1, out.length() - 1));

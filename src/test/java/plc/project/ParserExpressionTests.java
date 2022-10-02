@@ -100,6 +100,18 @@ final class ParserExpressionTests {
                 Arguments.of("Escape Character",
                         Arrays.asList(new Token(Token.Type.STRING, "\"Hello,\\nWorld!\"", 0)),
                         new Ast.Expression.Literal("Hello,\nWorld!")
+                ),
+                Arguments.of("Escape Asterisk",
+                        Arrays.asList(new Token(Token.Type.STRING, "\"Hello,\\'World!\"", 0)),
+                        new Ast.Expression.Literal("Hello,\'World!")
+                ),
+                Arguments.of("Escape slash",
+                        Arrays.asList(new Token(Token.Type.STRING, "\"Hello,\\\\World!\"", 0)),
+                        new Ast.Expression.Literal("Hello,\\World!")
+                ),
+                Arguments.of("Escape quote",
+                        Arrays.asList(new Token(Token.Type.STRING, "\"Hello,\\\"World!\"", 0)),
+                        new Ast.Expression.Literal("Hello,\"World!")
                 )
         );
     }
