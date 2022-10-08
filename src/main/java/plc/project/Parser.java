@@ -163,13 +163,22 @@ public final class Parser {
     public Ast.Expression parseLogicalExpression() throws ParseException {
         System.out.println("in logical");
         try {
-            System.out.println("inside try");
-        Ast.Expression output = parseComparisonExpression();
-        while (match("(&&)")) {
+            //System.out.println("inside try");
+        Ast.Expression output = parseComparisonExpression(); // this gets the value of left
+            System.out.println(output.toString());
+        if (match(Token.Type.OPERATOR)) {
             System.out.println("matching &&");
             String op = tokens.get(-1).getLiteral();
+            System.out.println(op);
             Ast.Expression right = parseComparisonExpression(); //just throws it down the line
-            output = new Ast.Expression.Binary(op, output, right);
+            output = new Ast.Expression.Binary(op, output, right); // this sets output to the binary
+        }
+        if (match("(==)")) {
+            System.out.println("matching ==");
+            String op = tokens.get(-1).getLiteral();
+            System.out.println(op);
+            Ast.Expression right = parseComparisonExpression(); //just throws it down the line
+            output = new Ast.Expression.Binary(op, output, right);// this sets output to the binary
         }
         return output;
         }
@@ -185,7 +194,7 @@ public final class Parser {
         //throw new UnsupportedOperationException(); //TODO
         System.out.println("inside comparison");
         try {
-            System.out.println("inside try");
+            //System.out.println("inside try");
             return parseAdditiveExpression();
         }
         catch (ParseException parseException) {
@@ -200,7 +209,7 @@ public final class Parser {
         //throw new UnsupportedOperationException(); //TODO
         System.out.println("inside additive");
         try {
-            System.out.println("inside try");
+            //System.out.println("inside try");
             return parseMultiplicativeExpression();
         }
         catch (ParseException parseException) {
@@ -215,7 +224,7 @@ public final class Parser {
         //throw new UnsupportedOperationException(); //TODO
         System.out.println("inside multiplicative");
         try {
-            System.out.println("inside try");
+            //System.out.println("inside try");
             return parsePrimaryExpression();
         }
         catch (ParseException parseException) {
@@ -244,6 +253,10 @@ public final class Parser {
 
         if (match("FALSE")) {
             return new Ast.Expression.Literal(false);
+        }
+
+        if (match("NIL")) {
+            return new Ast.Expression.Literal(null);
         }
         // this may also just be how you do true/false
         // TODO: TRUE/FALSE/NIL
@@ -287,6 +300,10 @@ public final class Parser {
 
         if (match(Token.Type.IDENTIFIER)) { // id located
             System.out.println("id located");
+            if (match("[")) {
+                match(Token.Type.IDENTIFIER);
+                if (!match("]")) throw new ParseException("expected closing bracket", tokens.index);
+            }
             String out = (tokens.get(-1).getLiteral());
             return new Ast.Expression.Access(Optional.empty(), out);
         }
