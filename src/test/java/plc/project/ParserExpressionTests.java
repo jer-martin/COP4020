@@ -122,7 +122,7 @@ final class ParserExpressionTests {
         test(tokens, expected, Parser::parseExpression);
     }
 
-    private static Stream<Arguments> testGroupExpression() {
+    private static Stream<Arguments> testGroupExpression() { // THIS IS PARENTHESIS (group obv)
         return Stream.of(
                 Arguments.of("Grouped Variable",
                         Arrays.asList(
@@ -156,7 +156,7 @@ final class ParserExpressionTests {
         test(tokens, expected, Parser::parseExpression);
     }
 
-    private static Stream<Arguments> testBinaryExpression() {
+    private static Stream<Arguments> testBinaryExpression() { // THIS IS OPERATORS (logical, add, mult, compare)
         return Stream.of(
                 Arguments.of("Binary And",
                         Arrays.asList(
@@ -215,7 +215,7 @@ final class ParserExpressionTests {
         test(tokens, expected, Parser::parseExpression);
     }
 
-    private static Stream<Arguments> testAccessExpression() {
+    private static Stream<Arguments> testAccessExpression() { // THIS IS BRACKETS (array)
         return Stream.of(
                 Arguments.of("Variable",
                         Arrays.asList(new Token(Token.Type.IDENTIFIER, "name", 0)),

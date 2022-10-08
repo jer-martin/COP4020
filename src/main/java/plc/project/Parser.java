@@ -146,38 +146,81 @@ public final class Parser {
     /**
      * Parses the {@code expression} rule.
      */
-    public Ast.Expression parseExpression() throws ParseException {
-        // TODO: add functionality for (logical, comparison, additive, multiplicative) expressions
-        return parsePrimaryExpression();
+    public Ast.Expression parseExpression() throws ParseException { // should just fall all the way down?
+        System.out.println("up top");
+        try { // i believe that this should work as a baseline for all of the expression parsing
+            return parseLogicalExpression();
+        }
+        catch (ParseException parseException){
+            throw new ParseException("broke up top", tokens.index);
+        }
     }
 
     /**
      * Parses the {@code logical-expression} rule.
      */
     public Ast.Expression parseLogicalExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        System.out.println("in logical");
+        try {
+            System.out.println("inside try");
+        Ast.Expression output = parseComparisonExpression();
+        while (match("(&&)")) {
+            String op = tokens.get(-1).getLiteral();
+            Ast.Expression right = parseComparisonExpression(); //just throws it down the line
+            output = new Ast.Expression.Binary(op, output, right);
+        }
+        return output;
+        }
+        catch (ParseException parseException) {
+            throw new ParseException("no match", tokens.index);
+        }
     }
 
     /**
      * Parses the {@code equality-expression} rule.
      */
     public Ast.Expression parseComparisonExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        System.out.println("inside comparison");
+        try {
+            System.out.println("inside try");
+            return parseAdditiveExpression();
+        }
+        catch (ParseException parseException) {
+            throw new ParseException("failed at comparison", tokens.index);
+        }
     }
 
     /**
      * Parses the {@code additive-expression} rule.
      */
     public Ast.Expression parseAdditiveExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        System.out.println("inside additive");
+        try {
+            System.out.println("inside try");
+            return parseMultiplicativeExpression();
+        }
+        catch (ParseException parseException) {
+            throw new ParseException("failed at additive", tokens.index);
+        }
     }
 
     /**
      * Parses the {@code multiplicative-expression} rule.
      */
     public Ast.Expression parseMultiplicativeExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        System.out.println("inside multiplicative");
+        try {
+            System.out.println("inside try");
+            return parsePrimaryExpression();
+        }
+        catch (ParseException parseException) {
+            throw new ParseException("failed at multiplicative", tokens.index);
+        }
     }
+
 
     /**
      * Parses the {@code primary-expression} rule. This is the top-level rule
@@ -187,6 +230,9 @@ public final class Parser {
      */
     public Ast.Expression parsePrimaryExpression() throws ParseException {
         //throw new UnsupportedOperationException(); //TODO
+        System.out.println("inside primary");
+
+        // TODO: add functionality for (logical, comparison, additive, multiplicative) expressions
 
         // i could make these a switch statement... but will I? who knows........
 
@@ -237,20 +283,20 @@ public final class Parser {
             return new Ast.Expression.Literal(out.substring(1, out.length() - 1));
         }
 
-
-
-        //TODO: add escape functionality
-            // would i do this within the if statements for string?
+        if (match(Token.Type.IDENTIFIER)) { // id located
+            System.out.println("id located");
+            String out = (tokens.get(-1).getLiteral());
+            return new Ast.Expression.Literal(out);
+        }
 
         // TODO: paren () expression
         // TODO: bracket [] expression
 
 
-        else {
+
             //throw new ParseException()
-            throw new ParseException("Invalid primary expression", tokens.index);
-            //TODO: handle actual char index
-        }
+        throw new ParseException("Invalid primary expression", tokens.index);
+
     }
 
     /**
