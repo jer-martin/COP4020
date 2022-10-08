@@ -318,7 +318,7 @@ public final class Parser {
             if (peek("[")) {
                 match("[");
 
-                List<Ast.Expression> args = new ArrayList<Ast.Expression>();
+                List<Ast.Expression> args = new ArrayList<Ast.Expression>(); // i just copied the code from the function lol
 
                 while (!peek("]")){
                     args.add(parseExpression());
@@ -328,13 +328,11 @@ public final class Parser {
                             throw new ParseException("trailing comma", tokens.get(0).getIndex());
                     }
                 }
-                return new Ast.Expression.Access(Optional.of(new Ast.Expression.Access(Optional.empty(), "name")), "list");
+                return new Ast.Expression.Access(Optional.of(new Ast.Expression.Access(Optional.empty(), tokens.get(-1).getLiteral())), tokens.get(-3).getLiteral());
             }
             return new Ast.Expression.Access(Optional.empty(), out);
         }
 
-        // TODO: paren () expression
-        // TODO: bracket [] expression
 
 
 
