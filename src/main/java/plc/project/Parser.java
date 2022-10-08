@@ -2,6 +2,7 @@ package plc.project;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -148,7 +149,7 @@ public final class Parser {
      * Parses the {@code expression} rule.
      */
     public Ast.Expression parseExpression() throws ParseException { // should just fall all the way down?
-        System.out.println("up top");
+        //System.out.println("up top");
         try { // i believe that this should work as a baseline for all of the expression parsing
             return parseLogicalExpression();
         }
@@ -161,24 +162,18 @@ public final class Parser {
      * Parses the {@code logical-expression} rule.
      */
     public Ast.Expression parseLogicalExpression() throws ParseException {
-        System.out.println("in logical");
+        //System.out.println("in logical");
         try {
             //System.out.println("inside try");
         Ast.Expression output = parseComparisonExpression(); // this gets the value of left
-            System.out.println(output.toString());
-        if (match(Token.Type.OPERATOR)) {
-            System.out.println("matching &&");
+            //System.out.println(output.toString());
+        if (match("(&&)") || match("(==)")) { // matches for any operator
+            System.out.println("matching operator for binary");
             String op = tokens.get(-1).getLiteral();
             System.out.println(op);
+
             Ast.Expression right = parseComparisonExpression(); //just throws it down the line
             output = new Ast.Expression.Binary(op, output, right); // this sets output to the binary
-        }
-        if (match("(==)")) {
-            System.out.println("matching ==");
-            String op = tokens.get(-1).getLiteral();
-            System.out.println(op);
-            Ast.Expression right = parseComparisonExpression(); //just throws it down the line
-            output = new Ast.Expression.Binary(op, output, right);// this sets output to the binary
         }
         return output;
         }
@@ -192,7 +187,7 @@ public final class Parser {
      */
     public Ast.Expression parseComparisonExpression() throws ParseException {
         //throw new UnsupportedOperationException(); //TODO
-        System.out.println("inside comparison");
+        //System.out.println("inside comparison");
         try {
             //System.out.println("inside try");
             return parseAdditiveExpression();
@@ -207,7 +202,7 @@ public final class Parser {
      */
     public Ast.Expression parseAdditiveExpression() throws ParseException {
         //throw new UnsupportedOperationException(); //TODO
-        System.out.println("inside additive");
+        //System.out.println("inside additive");
         try {
             //System.out.println("inside try");
             return parseMultiplicativeExpression();
@@ -222,7 +217,7 @@ public final class Parser {
      */
     public Ast.Expression parseMultiplicativeExpression() throws ParseException {
         //throw new UnsupportedOperationException(); //TODO
-        System.out.println("inside multiplicative");
+        //System.out.println("inside multiplicative");
         try {
             //System.out.println("inside try");
             return parsePrimaryExpression();
@@ -241,13 +236,13 @@ public final class Parser {
      */
     public Ast.Expression parsePrimaryExpression() throws ParseException {
         //throw new UnsupportedOperationException(); //TODO
-        System.out.println("inside primary");
+        //System.out.println("inside primary");
 
         // TODO: add functionality for (logical, comparison, additive, multiplicative) expressions
 
         // i could make these a switch statement... but will I? who knows........
 
-        if (match("TRUE")) { // this is hardcoded to the first test case to test peek and match functionality
+        if (match("TRUE")) {
             return new Ast.Expression.Literal(true);
         }
 
@@ -299,12 +294,42 @@ public final class Parser {
         }
 
         if (match(Token.Type.IDENTIFIER)) { // id located
-            System.out.println("id located");
-            if (match("[")) {
-                match(Token.Type.IDENTIFIER);
-                if (!match("]")) throw new ParseException("expected closing bracket", tokens.index);
-            }
             String out = (tokens.get(-1).getLiteral());
+            System.out.println("id located");
+
+            if (peek("(")) {
+                match("(");
+
+                List<Ast.Expression> args = new ArrayList<Ast.Expression>();
+
+                while (!peek(")")){
+                    args.add(parseExpression());
+                    if (peek(",")) {
+                        match(",");
+                        if (peek(")"))
+                            throw new ParseException("trailing comma", tokens.get(0).getIndex());
+                    }
+                }
+
+                match(")");
+                return new Ast.Expression.Function(out, args);
+            }
+
+            if (peek("[")) {
+                match("[");
+
+                List<Ast.Expression> args = new ArrayList<Ast.Expression>();
+
+                while (!peek("]")){
+                    args.add(parseExpression());
+                    if (peek(",")) {
+                        match(",");
+                        if (peek(")"))
+                            throw new ParseException("trailing comma", tokens.get(0).getIndex());
+                    }
+                }
+                return new Ast.Expression.Access(Optional.of(new Ast.Expression.Access(Optional.empty(), "name")), "list");
+            }
             return new Ast.Expression.Access(Optional.empty(), out);
         }
 
