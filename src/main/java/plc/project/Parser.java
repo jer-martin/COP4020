@@ -3,6 +3,7 @@ package plc.project;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The parser takes the sequence of tokens emitted by the lexer and turns that
@@ -165,6 +166,7 @@ public final class Parser {
             System.out.println("inside try");
         Ast.Expression output = parseComparisonExpression();
         while (match("(&&)")) {
+            System.out.println("matching &&");
             String op = tokens.get(-1).getLiteral();
             Ast.Expression right = parseComparisonExpression(); //just throws it down the line
             output = new Ast.Expression.Binary(op, output, right);
@@ -286,7 +288,7 @@ public final class Parser {
         if (match(Token.Type.IDENTIFIER)) { // id located
             System.out.println("id located");
             String out = (tokens.get(-1).getLiteral());
-            return new Ast.Expression.Literal(out);
+            return new Ast.Expression.Access(Optional.empty(), out);
         }
 
         // TODO: paren () expression
