@@ -167,8 +167,8 @@ public final class Parser {
             //System.out.println("inside try");
         Ast.Expression output = parseComparisonExpression(); // this gets the value of left
             //System.out.println(output.toString());
-        if (match("(&&)") || match("(==)")) { // matches for any operator
-            System.out.println("matching operator for binary");
+        if (match("&&")) { // matches for equality or logical and
+            //System.out.println("matching operator for binary");
             String op = tokens.get(-1).getLiteral();
             System.out.println(op);
 
@@ -190,7 +190,16 @@ public final class Parser {
         //System.out.println("inside comparison");
         try {
             //System.out.println("inside try");
-            return parseAdditiveExpression();
+            Ast.Expression output = parseAdditiveExpression();
+            if (match("==")) { // matches for equality or logical and
+                //System.out.println("matching operator for binary");
+                String op = tokens.get(-1).getLiteral();
+                System.out.println(op);
+
+                Ast.Expression right = parseComparisonExpression(); //just throws it down the line
+                output = new Ast.Expression.Binary(op, output, right); // this sets output to the binary
+            }
+            return output;
         }
         catch (ParseException parseException) {
             throw new ParseException("failed at comparison", tokens.index);
@@ -205,7 +214,16 @@ public final class Parser {
         //System.out.println("inside additive");
         try {
             //System.out.println("inside try");
-            return parseMultiplicativeExpression();
+            Ast.Expression output = parseMultiplicativeExpression();
+            if (match("+")) { // matches for equality or logical and
+                //System.out.println("matching operator for binary");
+                String op = tokens.get(-1).getLiteral();
+                System.out.println(op);
+
+                Ast.Expression right = parseComparisonExpression(); //just throws it down the line
+                output = new Ast.Expression.Binary(op, output, right); // this sets output to the binary
+            }
+            return output;
         }
         catch (ParseException parseException) {
             throw new ParseException("failed at additive", tokens.index);
@@ -220,7 +238,16 @@ public final class Parser {
         //System.out.println("inside multiplicative");
         try {
             //System.out.println("inside try");
-            return parsePrimaryExpression();
+            Ast.Expression output = parsePrimaryExpression();
+            if (match("*")) { // matches for equality or logical and
+                //System.out.println("matching operator for binary");
+                String op = tokens.get(-1).getLiteral();
+                System.out.println(op);
+
+                Ast.Expression right = parseComparisonExpression(); //just throws it down the line
+                output = new Ast.Expression.Binary(op, output, right); // this sets output to the binary
+            }
+            return output;
         }
         catch (ParseException parseException) {
             throw new ParseException("failed at multiplicative", tokens.index);
