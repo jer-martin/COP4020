@@ -100,9 +100,9 @@ public final class Parser {
             else throw new ParseException("expected ; at end of statement", tokens.index);
         }
         else {
-            System.out.println("inside id in parseStatement");
+            //System.out.println("inside id in parseStatement");
             if (peek(";")) {
-                System.out.println("matched ;");
+                //System.out.println("matched ;");
                 match(";");
                 return new Ast.Statement.Expression(reciever);
             }
@@ -190,7 +190,7 @@ public final class Parser {
         if (match("&&")) { // matches for equality or logical and
             //System.out.println("matching operator for binary");
             String op = tokens.get(-1).getLiteral();
-            System.out.println(op);
+            //System.out.println(op);
 
             Ast.Expression right = parseComparisonExpression(); //just throws it down the line
             output = new Ast.Expression.Binary(op, output, right); // this sets output to the binary
@@ -214,7 +214,7 @@ public final class Parser {
             if (match("==")) { // matches for equality or logical and
                 //System.out.println("matching operator for binary");
                 String op = tokens.get(-1).getLiteral();
-                System.out.println(op);
+                //System.out.println(op);
 
                 Ast.Expression right = parseComparisonExpression(); //just throws it down the line
                 output = new Ast.Expression.Binary(op, output, right); // this sets output to the binary
@@ -238,7 +238,7 @@ public final class Parser {
             if (match("+") || match("-")) { // matches for + or -
                 //System.out.println("matching operator for binary");
                 String op = tokens.get(-1).getLiteral();
-                System.out.println(op);
+                //System.out.println(op);
 
                 Ast.Expression right = parseComparisonExpression(); //just throws it down the line
                 output = new Ast.Expression.Binary(op, output, right); // this sets output to the binary
@@ -262,7 +262,7 @@ public final class Parser {
             if (match("*") || match("/")) { // matches for mult or div
                 //System.out.println("matching operator for binary");
                 String op = tokens.get(-1).getLiteral();
-                System.out.println(op);
+                //System.out.println(op);
 
                 Ast.Expression right = parseComparisonExpression(); //just throws it down the line
                 output = new Ast.Expression.Binary(op, output, right); // this sets output to the binary
@@ -355,11 +355,11 @@ public final class Parser {
 
         if (match(Token.Type.IDENTIFIER)) { // id located
             String out = (tokens.get(-1).getLiteral());
-            System.out.println("id located");
+            //System.out.println("id located");
 
             if (peek("(")) {
                 match("(");
-                System.out.println("matched (");
+                //System.out.println("matched (");
                 List<Ast.Expression> args = new ArrayList<Ast.Expression>();
 
                 while (!peek(")")){
