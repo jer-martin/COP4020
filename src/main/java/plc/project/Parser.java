@@ -88,7 +88,18 @@ public final class Parser {
      * statement, then it is an expression/assignment statement.
      */
     public Ast.Statement parseStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        Ast.Expression reciever = parseExpression();
+        if (peek("=")) { // this is an assignment statement
+            match("=");
+            Ast.Expression value = parseExpression();
+            if (peek(";")) {
+                match(";");
+                return new Ast.Statement.Assignment(reciever, value);
+            }
+            else throw new ParseException("expected ; at end of statement", tokens.index);
+        }
+        else throw new UnsupportedOperationException(); // throws this because im currently only coding assg
     }
 
     /**
@@ -215,7 +226,7 @@ public final class Parser {
         try {
             //System.out.println("inside try");
             Ast.Expression output = parseMultiplicativeExpression();
-            if (match("+")) { // matches for equality or logical and
+            if (match("+") || match("-")) { // matches for + or -
                 //System.out.println("matching operator for binary");
                 String op = tokens.get(-1).getLiteral();
                 System.out.println(op);
@@ -239,7 +250,7 @@ public final class Parser {
         try {
             //System.out.println("inside try");
             Ast.Expression output = parsePrimaryExpression();
-            if (match("*")) { // matches for equality or logical and
+            if (match("*") || match("/")) { // matches for mult or div
                 //System.out.println("matching operator for binary");
                 String op = tokens.get(-1).getLiteral();
                 System.out.println(op);
@@ -264,6 +275,22 @@ public final class Parser {
     public Ast.Expression parsePrimaryExpression() throws ParseException {
         //throw new UnsupportedOperationException(); //TODO
         //System.out.println("inside primary");
+        if (peek("(")) {
+            match("(");
+            List<String> args = new ArrayList<>();
+            while (match(Token.Type.IDENTIFIER)) {
+                args.add(tokens.get(-1).getLiteral());
+                if (!match(",")) {
+                    if (!peek(")")) {
+                        throw new ParseException("expected comma between identifiers", tokens.index);
+                    }
+
+                }
+            }
+            if (!match(")")) {
+                throw new ParseException("expected closing parenthesis", tokens.index);
+            }
+        }
 
         // TODO: add functionality for (logical, comparison, additive, multiplicative) expressions
 
@@ -342,7 +369,7 @@ public final class Parser {
                 return new Ast.Expression.Function(out, args);
             }
 
-            if (peek("[")) {
+            if (peek("[")) { // this is access
                 match("[");
 
                 List<Ast.Expression> args = new ArrayList<Ast.Expression>(); // i just copied the code from the function lol

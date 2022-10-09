@@ -194,6 +194,18 @@ final class ParserExpressionTests {
                                 new Ast.Expression.Access(Optional.empty(), "expr2")
                         )
                 ),
+                Arguments.of("Binary Subtraction",
+                        Arrays.asList(
+                                //expr1 - expr2
+                                new Token(Token.Type.IDENTIFIER, "expr1", 0),
+                                new Token(Token.Type.OPERATOR, "-", 6),
+                                new Token(Token.Type.IDENTIFIER, "expr2", 8)
+                        ),
+                        new Ast.Expression.Binary("-",
+                                new Ast.Expression.Access(Optional.empty(), "expr1"),
+                                new Ast.Expression.Access(Optional.empty(), "expr2")
+                        )
+                ),
                 Arguments.of("Binary Multiplication",
                         Arrays.asList(
                                 //expr1 * expr2
@@ -202,6 +214,18 @@ final class ParserExpressionTests {
                                 new Token(Token.Type.IDENTIFIER, "expr2", 8)
                         ),
                         new Ast.Expression.Binary("*",
+                                new Ast.Expression.Access(Optional.empty(), "expr1"),
+                                new Ast.Expression.Access(Optional.empty(), "expr2")
+                        )
+                ),
+                Arguments.of("Binary Division",
+                        Arrays.asList(
+                                //expr1 / expr2
+                                new Token(Token.Type.IDENTIFIER, "expr1", 0),
+                                new Token(Token.Type.OPERATOR, "/", 6),
+                                new Token(Token.Type.IDENTIFIER, "expr2", 8)
+                        ),
+                        new Ast.Expression.Binary("/",
                                 new Ast.Expression.Access(Optional.empty(), "expr1"),
                                 new Ast.Expression.Access(Optional.empty(), "expr2")
                         )
