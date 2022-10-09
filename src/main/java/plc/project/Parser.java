@@ -99,7 +99,16 @@ public final class Parser {
             }
             else throw new ParseException("expected ; at end of statement", tokens.index);
         }
-        else throw new UnsupportedOperationException(); // throws this because im currently only coding assg
+        else {
+            System.out.println("inside id in parseStatement");
+            if (peek(";")) {
+                System.out.println("matched ;");
+                match(";");
+                return new Ast.Statement.Expression(reciever);
+            }
+            else throw new ParseException("expected ; at end of statement", tokens.index);
+        }
+        //else throw new UnsupportedOperationException(); // throws this because im currently only coding assg
     }
 
     /**
@@ -277,19 +286,14 @@ public final class Parser {
         //System.out.println("inside primary");
         if (peek("(")) {
             match("(");
-            List<String> args = new ArrayList<>();
-            while (match(Token.Type.IDENTIFIER)) {
-                args.add(tokens.get(-1).getLiteral());
-                if (!match(",")) {
-                    if (!peek(")")) {
-                        throw new ParseException("expected comma between identifiers", tokens.index);
-                    }
+            Ast.Expression.Group group = new Ast.Expression.Group(parseExpression());
 
-                }
+            if (peek(")")) {
+                match(")");
+                return group;
             }
-            if (!match(")")) {
-                throw new ParseException("expected closing parenthesis", tokens.index);
-            }
+            else if (tokens.has(0)) throw new ParseException("expected closing parenthesis", tokens.index);
+            else throw new ParseException("expected closing parenthesis", -1);
         }
 
         // TODO: add functionality for (logical, comparison, additive, multiplicative) expressions
@@ -347,13 +351,15 @@ public final class Parser {
             return new Ast.Expression.Literal(out.substring(1, out.length() - 1));
         }
 
+
+
         if (match(Token.Type.IDENTIFIER)) { // id located
             String out = (tokens.get(-1).getLiteral());
             System.out.println("id located");
 
             if (peek("(")) {
                 match("(");
-
+                System.out.println("matched (");
                 List<Ast.Expression> args = new ArrayList<Ast.Expression>();
 
                 while (!peek(")")){
