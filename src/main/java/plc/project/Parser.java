@@ -94,6 +94,10 @@ public final class Parser {
             return parseDeclarationStatement();
         }
 
+        if (peek("IF")) {
+            return parseIfStatement();
+        }
+
 
         Ast.Expression reciever = parseExpression();
         if (peek("=")) { // this is an assignment statement
@@ -148,7 +152,28 @@ public final class Parser {
      * {@code IF}.
      */
     public Ast.Statement.If parseIfStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        match("IF");
+        Ast.Expression condition = parseExpression(); // this gets the next expr in line (i tried to use a try catch but that didnt work)
+        if (match("DO")) {
+            boolean isElse = false;
+            List<Ast.Statement> thenStatements = new ArrayList<>();
+            List<Ast.Statement> elseStatements = new ArrayList<>();
+
+            while (!match("END") && tokens.has(0)) { // while not end and tokens at current index populated
+                if (match("ELSE")) {
+                    if (!isElse) isElse = true;
+                    else throw new ParseException("too many else statements", -1);
+                }
+                if (isElse) elseStatements.add(parseStatement()); // if else, add to else list
+                else thenStatements.add(parseStatement()); // if not else, add to then list
+            }
+
+            if (!tokens.get(-1).getLiteral().equals("END")) throw new ParseException("expected END statement", -1);
+
+            return new Ast.Statement.If(condition, thenStatements, elseStatements);
+        }
+        throw new ParseException("Expected DO Statement", -1);
     }
 
     /**
