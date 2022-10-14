@@ -32,6 +32,7 @@ public final class Parser {
      */
     public Ast.Source parseSource() throws ParseException {
         throw new UnsupportedOperationException(); //TODO
+
     }
 
     /**
@@ -89,6 +90,11 @@ public final class Parser {
      */
     public Ast.Statement parseStatement() throws ParseException {
         //throw new UnsupportedOperationException(); //TODO
+        if (peek("LET")) {
+            return parseDeclarationStatement();
+        }
+
+
         Ast.Expression reciever = parseExpression();
         if (peek("=")) { // this is an assignment statement
             match("=");
@@ -117,7 +123,23 @@ public final class Parser {
      * statement, aka {@code LET}.
      */
     public Ast.Statement.Declaration parseDeclarationStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+       // throw new UnsupportedOperationException(); //TODO
+        match("LET");
+        if (!match(Token.Type.IDENTIFIER)) {
+            throw new ParseException("Expected Identifier", -1);
+            //TODO: handle actual index
+        }
+        String name = tokens.get(-1).getLiteral();
+        Optional<Ast.Expression> value = Optional.empty();
+        Optional<Object> temp = Optional.empty();
+        if (match("=")) {
+            value = Optional.of(parseExpression());
+ //           temp = Optional.of(parseExpression());\
+        }
+        if (!match(";")) {
+            throw new ParseException("Expected Semicolon", -1);
+        }
+        return new Ast.Statement.Declaration(name, value);
     }
 
     /**
