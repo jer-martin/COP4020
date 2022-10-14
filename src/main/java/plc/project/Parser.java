@@ -99,6 +99,11 @@ public final class Parser {
         }
 
 
+        if (peek("RETURN")) {
+            return parseReturnStatement();
+        }
+
+
         Ast.Expression reciever = parseExpression();
         if (peek("=")) { // this is an assignment statement
             match("=");
@@ -209,7 +214,13 @@ public final class Parser {
      * {@code RETURN}.
      */
     public Ast.Statement.Return parseReturnStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        match("RETURN");
+        Ast.Expression value = parseExpression();
+        if (!match(";")) {
+            throw new ParseException("expected semicolon", -1);
+        }
+        return new Ast.Statement.Return(value);
     }
 
     /**
@@ -258,7 +269,7 @@ public final class Parser {
         try {
             //System.out.println("inside try");
             Ast.Expression output = parseAdditiveExpression();
-            if (match("==") || match("!=")) { // matches for equality or logical and
+            if (match("==") || match("!=") || match("<") || match(">")) { // matches for equality or logical and
                 //System.out.println("matching operator for binary");
                 String op = tokens.get(-1).getLiteral();
                 //System.out.println(op);
@@ -306,7 +317,7 @@ public final class Parser {
         try {
             //System.out.println("inside try");
             Ast.Expression output = parsePrimaryExpression();
-            if (match("*") || match("/")) { // matches for mult or div
+            if (match("*") || match("/") || match("^")) { // matches for mult or div
                 //System.out.println("matching operator for binary");
                 String op = tokens.get(-1).getLiteral();
                 //System.out.println(op);
