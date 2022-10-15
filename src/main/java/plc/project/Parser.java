@@ -31,7 +31,19 @@ public final class Parser {
      * Parses the {@code source} rule.
      */
     public Ast.Source parseSource() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        List<Ast.Global> globals = new ArrayList<>();
+        List<Ast.Function> functions = new ArrayList<>();
+
+        while (tokens.has(0)) {
+            if (peek("FUN")) {
+                functions.add(parseFunction());
+            }
+            // TODO: add VAL, LIST, VAR (goes to GLOBAL)
+            if (peek("VAL")) throw new UnsupportedOperationException();
+        }
+
+        return new Ast.Source(globals, functions);
 
     }
 
@@ -72,7 +84,54 @@ public final class Parser {
      * next tokens start a method, aka {@code FUN}.
      */
     public Ast.Function parseFunction() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        match("FUN");
+
+        if (match(Token.Type.IDENTIFIER)) { // first match matches name
+            //System.out.println("id found after function call");
+
+            String name = tokens.get(-1).getLiteral();
+
+            if (match("(")) { // match first parenthesis
+                List<String> parameters = new ArrayList<>();
+                List<Ast.Statement> statements = new ArrayList<>();
+
+                while (peek(Token.Type.IDENTIFIER)) { // this gets parameters
+                    match(Token.Type.IDENTIFIER);
+
+                    if (peek(",")) match(",");
+                    if (!match(",")) {
+                        if (!peek(")")) throw new ParseException("expected comma between identifiers", -1);
+                    }
+                }
+
+                if (!match(")")) throw new ParseException("expected closing parenthesis in function call", -1);
+
+                if (peek("DO")) match("DO");
+                else throw new ParseException("expected DO statement", -1);
+
+                while(!peek("END") && tokens.has(0)) { // while not at end and not empty
+                    statements.add(parseStatement());
+                    //System.out.println("statement added");
+                    //System.out.println(statements.get(0));
+                }
+                //System.out.println(statements.get(0));
+                if (peek("END")) {
+                    //System.out.println("matching end");
+                    match("END");
+                }
+                if (!tokens.get(-1).getLiteral().equals("END")) throw new ParseException("expected END statement", -1);
+
+                return new Ast.Function(name, parameters, statements);
+            }
+            else throw new ParseException("expected parenthesis after function identifier", -1);
+
+
+
+        }
+        else throw new ParseException("expected identifier after function call", -1);
+
+
     }
 
     /**
@@ -81,6 +140,7 @@ public final class Parser {
      */
     public List<Ast.Statement> parseBlock() throws ParseException {
         throw new UnsupportedOperationException(); //TODO
+        // this is a group of statements, will be parsed within function
     }
 
     /**
@@ -106,7 +166,7 @@ public final class Parser {
             return parseReturnStatement();
         }
 
-
+    // TODO: ADD BLOCK SUPPORT TO IF & SWITCH
         Ast.Expression reciever = parseExpression();
         if (peek("=")) { // this is an assignment statement
             match("=");
