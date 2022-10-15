@@ -1,0 +1,71 @@
+ParserTests (37/53):
+  Statement (8/10):
+    Assignment (5/7):
+      List: Unexpected ParseException (expected ; at end of statement)
+      List: Unexpected ParseException (expected ; at end of statement)
+
+
+  Expression (29/41):
+    Literal (7/8):
+      Char Escapes (0/1):
+        Char Escape '\b': Incorrect result, received Ast.Expression.Literal{literal=\}
+        Char Escape '\n': Incorrect result, received Ast.Expression.Literal{literal=\}
+        Char Escape '\r': Incorrect result, received Ast.Expression.Literal{literal=\}
+        Char Escape '\t': Incorrect result, received Ast.Expression.Literal{literal=\}
+        Char Escape '\'': Incorrect result, received Ast.Expression.Literal{literal=\}
+        Char Escape '\"': Incorrect result, received Ast.Expression.Literal{literal=\}
+
+    Binary (4/8):
+      Basic (2/4):
+        Comparison (0/1):
+          <: Incorrect result, received Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}
+          >: Incorrect result, received Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}
+        Multiplicative (0/1):
+          ^: Incorrect result, received Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}
+
+
+      Multiple Operators (0/2):
+        Logical (0/1):
+          And: Incorrect result, received Ast.Expression.Binary{operator='&&', left=Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}, right=Ast.Expression.Binary{operator='&&', left=Ast.Expression.Access{offset=Optional.empty, name='expr2', variable=null}, right=Ast.Expression.Access{offset=Optional.empty, name='expr3', variable=null}}}
+          Or: Incorrect result, received Ast.Expression.Binary{operator='||', left=Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}, right=Ast.Expression.Binary{operator='||', left=Ast.Expression.Access{offset=Optional.empty, name='expr2', variable=null}, right=Ast.Expression.Access{offset=Optional.empty, name='expr3', variable=null}}}
+        Comparison (0/1):
+          <: Incorrect result, received Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}
+          >: Incorrect result, received Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}
+          ==: Incorrect result, received Ast.Expression.Binary{operator='==', left=Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}, right=Ast.Expression.Binary{operator='==', left=Ast.Expression.Access{offset=Optional.empty, name='expr2', variable=null}, right=Ast.Expression.Access{offset=Optional.empty, name='expr3', variable=null}}}
+          !=: Incorrect result, received Ast.Expression.Binary{operator='!=', left=Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}, right=Ast.Expression.Binary{operator='!=', left=Ast.Expression.Access{offset=Optional.empty, name='expr2', variable=null}, right=Ast.Expression.Access{offset=Optional.empty, name='expr3', variable=null}}}
+        Additive (0/1):
+          +: Incorrect result, received Ast.Expression.Binary{operator='+', left=Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}, right=Ast.Expression.Binary{operator='+', left=Ast.Expression.Access{offset=Optional.empty, name='expr2', variable=null}, right=Ast.Expression.Access{offset=Optional.empty, name='expr3', variable=null}}}
+          -: Incorrect result, received Ast.Expression.Binary{operator='-', left=Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}, right=Ast.Expression.Binary{operator='-', left=Ast.Expression.Access{offset=Optional.empty, name='expr2', variable=null}, right=Ast.Expression.Access{offset=Optional.empty, name='expr3', variable=null}}}
+        Multiplicative (0/1):
+          *: Incorrect result, received Ast.Expression.Binary{operator='*', left=Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}, right=Ast.Expression.Binary{operator='*', left=Ast.Expression.Access{offset=Optional.empty, name='expr2', variable=null}, right=Ast.Expression.Access{offset=Optional.empty, name='expr3', variable=null}}}
+          /: Incorrect result, received Ast.Expression.Binary{operator='/', left=Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}, right=Ast.Expression.Binary{operator='/', left=Ast.Expression.Access{offset=Optional.empty, name='expr2', variable=null}, right=Ast.Expression.Access{offset=Optional.empty, name='expr3', variable=null}}}
+          ^: Incorrect result, received Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}
+
+
+      Missing Operand (2/2):
+        Comparison (1/1):
+          <: Expected a ParseException to be thrown, received Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}
+          >: Expected a ParseException to be thrown, received Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}
+        Multiplicative (1/1):
+          ^: Expected a ParseException to be thrown, received Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}
+
+
+    Access (4/5):
+      Complex Expression: Incorrect result, received Ast.Expression.Access{offset=Optional[Ast.Expression.Access{offset=Optional.empty, name='expr2', variable=null}], name='expr1', variable=null}
+
+
+    Operator Precedence (2/8):
+      Comparison (0/2):
+        CL: Incorrect result, received Ast.Expression.Binary{operator='==', left=Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}, right=Ast.Expression.Binary{operator='&&', left=Ast.Expression.Access{offset=Optional.empty, name='expr2', variable=null}, right=Ast.Expression.Access{offset=Optional.empty, name='expr3', variable=null}}}
+      Additive (0/2):
+        AL: Incorrect result, received Ast.Expression.Binary{operator='+', left=Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}, right=Ast.Expression.Binary{operator='&&', left=Ast.Expression.Access{offset=Optional.empty, name='expr2', variable=null}, right=Ast.Expression.Access{offset=Optional.empty, name='expr3', variable=null}}}
+        AC: Incorrect result, received Ast.Expression.Binary{operator='+', left=Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}, right=Ast.Expression.Binary{operator='==', left=Ast.Expression.Access{offset=Optional.empty, name='expr2', variable=null}, right=Ast.Expression.Access{offset=Optional.empty, name='expr3', variable=null}}}
+      Multiplicative (0/2):
+        ML: Incorrect result, received Ast.Expression.Binary{operator='*', left=Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}, right=Ast.Expression.Binary{operator='&&', left=Ast.Expression.Access{offset=Optional.empty, name='expr2', variable=null}, right=Ast.Expression.Access{offset=Optional.empty, name='expr3', variable=null}}}
+        MC: Incorrect result, received Ast.Expression.Binary{operator='*', left=Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}, right=Ast.Expression.Binary{operator='==', left=Ast.Expression.Access{offset=Optional.empty, name='expr2', variable=null}, right=Ast.Expression.Access{offset=Optional.empty, name='expr3', variable=null}}}
+        MA: Incorrect result, received Ast.Expression.Binary{operator='*', left=Ast.Expression.Access{offset=Optional.empty, name='expr1', variable=null}, right=Ast.Expression.Binary{operator='+', left=Ast.Expression.Access{offset=Optional.empty, name='expr2', variable=null}, right=Ast.Expression.Access{offset=Optional.empty, name='expr3', variable=null}}}
+
+
+  Error (check for correct index) (0/2):
+    Invalid Expression: Unexpected java.lang.ArrayIndexOutOfBoundsException: -1
+    Missing Closing Parenthesis: Incorrect index, received 1.

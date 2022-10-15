@@ -23,6 +23,11 @@ public final class Parser {
 
     private final TokenStream tokens;
 
+    private ParseException errorHandler(String message) {
+        if (tokens.has(0)) return new ParseException(message + " at index " + tokens.get(0).getIndex(), tokens.get(0).getIndex());
+        else return new ParseException(message+ " at index " +(tokens.get(-1).getIndex() + tokens.get(-1).getLiteral().length()), (tokens.get(-1).getIndex() + tokens.get(-1).getLiteral().length()));
+    }
+
     public Parser(List<Token> tokens) {
         this.tokens = new TokenStream(tokens);
     }
@@ -34,13 +39,20 @@ public final class Parser {
         //throw new UnsupportedOperationException(); //TODO
         List<Ast.Global> globals = new ArrayList<>();
         List<Ast.Function> functions = new ArrayList<>();
+        boolean function = false;
 
         while (tokens.has(0)) {
             if (peek("FUN")) {
                 functions.add(parseFunction());
+                function = true;
             }
             // TODO: add VAL, LIST, VAR (goes to GLOBAL)
-            if (peek("VAL")) throw new UnsupportedOperationException();
+            else if (peek("VAL") || peek("LIST") || peek("VAR")) {
+                globals.add(parseGlobal());
+                //System.out.println("added global");
+                if (function) throw errorHandler("invalid global variable located");
+            }
+            else throw errorHandler("expected expression");
         }
 
         return new Ast.Source(globals, functions);
@@ -52,7 +64,17 @@ public final class Parser {
      * next tokens start a global, aka {@code LIST|VAL|VAR}.
      */
     public Ast.Global parseGlobal() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        if ( peek("LIST") ) {
+            return parseList();
+        }
+        else if (peek("VAL") ) {
+            return parseImmutable();
+        }
+        else if (peek("VAR")) {
+            return parseMutable();
+        }
+        else throw errorHandler("invalid global variable located");
     }
 
     /**
@@ -61,6 +83,7 @@ public final class Parser {
      */
     public Ast.Global parseList() throws ParseException {
         throw new UnsupportedOperationException(); //TODO
+        //return new Ast.Global()
     }
 
     /**
@@ -68,7 +91,12 @@ public final class Parser {
      * next token declares a mutable global variable, aka {@code VAR}.
      */
     public Ast.Global parseMutable() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        match("VAR");
+        Ast.Statement.Declaration declaration = parseDeclarationStatement();
+        //TODO: add try catch here
+
+        return new Ast.Global(declaration.getName(), true, declaration.getValue());
     }
 
     /**
@@ -76,7 +104,11 @@ public final class Parser {
      * next token declares an immutable global variable, aka {@code VAL}.
      */
     public Ast.Global parseImmutable() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+       // throw new UnsupportedOperationException(); //TODO
+        match("VAL");
+        Ast.Statement.Declaration declaration = parseDeclarationStatement();
+
+        return new Ast.Global(declaration.getName(), false, declaration.getValue());
     }
 
     /**
@@ -101,14 +133,14 @@ public final class Parser {
 
                     if (peek(",")) match(",");
                     if (!match(",")) {
-                        if (!peek(")")) throw new ParseException("expected comma between identifiers", -1);
+                        if (!peek(")")) throw errorHandler("expected comma between identifiers");
                     }
                 }
 
-                if (!match(")")) throw new ParseException("expected closing parenthesis in function call", -1);
+                if (!match(")")) throw errorHandler("expected closing parenthesis");
 
                 if (peek("DO")) match("DO");
-                else throw new ParseException("expected DO statement", -1);
+                else throw errorHandler("expected DO statement");
 
                 while(!peek("END") && tokens.has(0)) { // while not at end and not empty
                     statements.add(parseStatement());
@@ -120,16 +152,16 @@ public final class Parser {
                     //System.out.println("matching end");
                     match("END");
                 }
-                if (!tokens.get(-1).getLiteral().equals("END")) throw new ParseException("expected END statement", -1);
+                if (!tokens.get(-1).getLiteral().equals("END")) throw errorHandler("expected END statement");
 
                 return new Ast.Function(name, parameters, statements);
             }
-            else throw new ParseException("expected parenthesis after function identifier", -1);
+            else throw errorHandler("expected parenthesis after function identifier");
 
 
 
         }
-        else throw new ParseException("expected identifier after function call", -1);
+        else throw errorHandler("expected identifier after function call");
 
 
     }
@@ -151,6 +183,7 @@ public final class Parser {
     public Ast.Statement parseStatement() throws ParseException {
         //throw new UnsupportedOperationException(); //TODO
         if (peek("LET")) {
+            match("LET");
             return parseDeclarationStatement();
         }
 
@@ -175,7 +208,7 @@ public final class Parser {
                 match(";");
                 return new Ast.Statement.Assignment(reciever, value);
             }
-            else throw new ParseException("expected ; at end of statement", tokens.get(-1).getIndex());
+            else throw errorHandler("expected ; at end of statement");
         }
         else {
             //System.out.println("inside id in parseStatement");
@@ -184,7 +217,7 @@ public final class Parser {
                 match(";");
                 return new Ast.Statement.Expression(reciever);
             }
-            else throw new ParseException("expected ; at end of statement", tokens.get(-1).getIndex());
+            else throw errorHandler("expected ; at end of statement");
         }
         //else throw new UnsupportedOperationException(); // throws this because im currently only coding assg
     }
@@ -196,9 +229,9 @@ public final class Parser {
      */
     public Ast.Statement.Declaration parseDeclarationStatement() throws ParseException {
        // throw new UnsupportedOperationException(); //TODO
-        match("LET");
+        //match("LET");
         if (!match(Token.Type.IDENTIFIER)) {
-            throw new ParseException("Expected Identifier", -1);
+            throw errorHandler("expected identifier");
             //TODO: handle actual index
         }
         String name = tokens.get(-1).getLiteral();
@@ -209,7 +242,7 @@ public final class Parser {
  //           temp = Optional.of(parseExpression());\
         }
         if (!match(";")) {
-            throw new ParseException("Expected Semicolon", -1);
+            throw errorHandler("expected semicolon");
         }
         return new Ast.Statement.Declaration(name, value);
     }
@@ -231,17 +264,17 @@ public final class Parser {
             while (!match("END") && tokens.has(0)) { // while not end and tokens at current index populated
                 if (match("ELSE")) {
                     if (!isElse) isElse = true;
-                    else throw new ParseException("too many else statements", -1);
+                    else throw errorHandler("too many else statements");
                 }
                 if (isElse) elseStatements.add(parseStatement()); // if else, add to else list
                 else thenStatements.add(parseStatement()); // if not else, add to then list
             }
 
-            if (!tokens.get(-1).getLiteral().equals("END")) throw new ParseException("expected END statement", -1);
+            if (!tokens.get(-1).getLiteral().equals("END")) throw errorHandler("expected END statement");
 
             return new Ast.Statement.If(condition, thenStatements, elseStatements);
         }
-        throw new ParseException("Expected DO Statement", -1);
+        throw errorHandler("expected DO statement");
     }
 
     /**
@@ -272,13 +305,13 @@ public final class Parser {
         match("WHILE");
         Ast.Expression condition = parseExpression();
         List<Ast.Statement> statements = new ArrayList<>();
-        if (!match("DO")) throw new ParseException("Expected DO statement", -1);
+        if (!match("DO")) throw errorHandler("expected DO statement");
 
         while (!match("END") && tokens.has(0)) { // while not end and tokens at current index populated
             statements.add(parseStatement());
         }
 
-        if (!tokens.get(-1).getLiteral().equals("END")) throw new ParseException("expected END statement", -1);
+        if (!tokens.get(-1).getLiteral().equals("END")) throw errorHandler("expected END statement");
 
         return new Ast.Statement.While(condition, statements);
     }
@@ -293,7 +326,7 @@ public final class Parser {
         match("RETURN");
         Ast.Expression value = parseExpression();
         if (!match(";")) {
-            throw new ParseException("expected semicolon", -1);
+            throw errorHandler("expected semicolon");
         }
         return new Ast.Statement.Return(value);
     }
@@ -307,7 +340,7 @@ public final class Parser {
             return parseLogicalExpression();
         }
         catch (ParseException parseException){
-            throw new ParseException("invalid expression at index " + tokens.get(-1).getIndex(), tokens.get(-1).getIndex());
+            throw errorHandler("invalid expression");
         }
     }
 
@@ -331,7 +364,7 @@ public final class Parser {
         return output;
         }
         catch (ParseException parseException) {
-            throw new ParseException("invalid token at index " + tokens.get(-1).getIndex(), tokens.get(-1).getIndex());
+            throw errorHandler("invalid token");
         }
     }
 
@@ -355,7 +388,7 @@ public final class Parser {
             return output;
         }
         catch (ParseException parseException) {
-            throw new ParseException("invalid token at index " + tokens.get(-1).getIndex(), tokens.get(-1).getIndex());
+            throw errorHandler("invalid token");
         }
     }
 
@@ -379,7 +412,7 @@ public final class Parser {
             return output;
         }
         catch (ParseException parseException) {
-            throw new ParseException("invalid token at index " + tokens.get(-1).getIndex(), tokens.get(-1).getIndex());
+            throw errorHandler("invalid token");
         }
     }
 
@@ -403,7 +436,7 @@ public final class Parser {
             return output;
         }
         catch (ParseException parseException) {
-            throw new ParseException("invalid token at index " + tokens.get(-1).getIndex(), tokens.get(-1).getIndex());
+            throw errorHandler("invalid token");
         }
     }
 
@@ -415,7 +448,6 @@ public final class Parser {
      * not strictly necessary.
      */
     public Ast.Expression parsePrimaryExpression() throws ParseException {
-        //throw new UnsupportedOperationException(); //TODO
         //System.out.println("inside primary");
         if (peek("(")) {
             match("(");
@@ -425,13 +457,10 @@ public final class Parser {
                 match(")");
                 return group;
             }
-            else if (tokens.has(0)) throw new ParseException("expected closing parenthesis at index " + tokens.get(-1).getIndex(), tokens.get(-1).getIndex());
-            else throw new ParseException("expected closing parenthesis", tokens.get(-1).getIndex());
+            else throw errorHandler("expected closing parenthesis");
         }
 
-        // TODO: add functionality for (logical, comparison, additive, multiplicative) expressions
 
-        // i could make these a switch statement... but will I? who knows........
 
         if (match("TRUE")) {
             return new Ast.Expression.Literal(true);
@@ -444,16 +473,7 @@ public final class Parser {
         if (match("NIL")) {
             return new Ast.Expression.Literal(null);
         }
-        // this may also just be how you do true/false
-        // TODO: TRUE/FALSE/NIL
 
-        // THIS IS HARDCODED - MATCH CAN ALSO MATCH TYPES
-//        if (match("1")) { // if match digit no decimal >> parse int (immutable?)
-//            return new Ast.Expression.Literal(new BigInteger("1"));
-//        }
-//        if (match("2.0")) { // if match digit w decimal >> parse dec (immutable)
-//            return new Ast.Expression.Literal(new BigDecimal("2.0"));
-//        }
 
         if (match(Token.Type.INTEGER)) { // integer located
             return new Ast.Expression.Literal(new BigInteger(tokens.get(-1).getLiteral()));
@@ -500,7 +520,7 @@ public final class Parser {
                     if (peek(",")) {
                         match(",");
                         if (peek(")"))
-                            throw new ParseException("trailing comma at index " + tokens.get(-1).getIndex(), tokens.get(-1).getIndex());
+                            throw errorHandler("trailing comma");
                     }
                 }
 
@@ -518,7 +538,7 @@ public final class Parser {
                     if (peek(",")) {
                         match(",");
                         if (peek("]"))
-                            throw new ParseException("trailing comma at index " + tokens.get(-1).getIndex(), tokens.get(-1).getIndex());
+                            throw errorHandler("trailing comma");
                     }
                 }
                 return new Ast.Expression.Access(Optional.of(new Ast.Expression.Access(Optional.empty(), tokens.get(-1).getLiteral())), tokens.get(-3).getLiteral());
@@ -529,8 +549,8 @@ public final class Parser {
 
 
 
-            //throw new ParseException()
-        throw new ParseException("Invalid primary expression", tokens.get(-1).getIndex());
+            //throw errorHandler()
+        throw errorHandler("Invalid primary expression");
 
     }
 
