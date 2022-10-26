@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
-
+    // a change so that git works
     private Scope scope = new Scope(null);
 
     public Interpreter(Scope parent) {
