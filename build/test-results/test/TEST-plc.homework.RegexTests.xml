@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="plc.homework.RegexTests" tests="75" skipped="0" failures="0" errors="0" timestamp="2022-09-20T19:35:47" hostname="Jeremys-MacBook-Air.local" time="0.944">
+  <properties/>
+  <testcase name="[1] 11 Characters, gasolineeee, true" classname="plc.homework.RegexTests" time="0.017"/>
+  <testcase name="[2] 11 Characters, automobiles, true" classname="plc.homework.RegexTests" time="0.01"/>
+  <testcase name="[3] 13 Characters, i&lt;3pancakes13, true" classname="plc.homework.RegexTests" time="0.007"/>
+  <testcase name="[4] 5 Characters, 5five, false" classname="plc.homework.RegexTests" time="0.008"/>
+  <testcase name="[5] 14 Characters, i&lt;3pancakes14!, false" classname="plc.homework.RegexTests" time="0.007"/>
+  <testcase name="[6] 11 characters with escape, &#10;&#10;&#10;&#10;&#10;&#10;&#10;&#10;&#10;&#10;&#10;, true" classname="plc.homework.RegexTests" time="0.008"/>
+  <testcase name="[7] Symbols, []&amp;^%$#@!()_+-='&quot;, true" classname="plc.homework.RegexTests" time="0.007"/>
+  <testcase name="[8] 13 Digits with Single Digit Escape , ?????????????, true" classname="plc.homework.RegexTests" time="0.007"/>
+  <testcase name="[9] 21 Characters, Polyentolyekmongtainh, false" classname="plc.homework.RegexTests" time="0.007"/>
+  <testcase name="[10] 19 Characters, Polyentolyekmongtai, true" classname="plc.homework.RegexTests" time="0.007"/>
+  <testcase name="[11] 15 Characters, Michaelchristop, true" classname="plc.homework.RegexTests" time="0.007"/>
+  <testcase name="[1] Single Element, ['a'], true" classname="plc.homework.RegexTests" time="0.007"/>
+  <testcase name="[2] Multiple Elements, ['a','b','c'], true" classname="plc.homework.RegexTests" time="0.006"/>
+  <testcase name="[3] Missing Brackets, 'a','b','c', false" classname="plc.homework.RegexTests" time="0.008"/>
+  <testcase name="[4] Missing Commas, ['a' 'b' 'c'], false" classname="plc.homework.RegexTests" time="0.006"/>
+  <testcase name="[5] Misaligned Whitespace, ['a','b', 'c'], true" classname="plc.homework.RegexTests" time="0.007"/>
+  <testcase name="[6] Open and Close, [], true" classname="plc.homework.RegexTests" time="0.006"/>
+  <testcase name="[7] Double Open and Close, [[]], false" classname="plc.homework.RegexTests" time="0.007"/>
+  <testcase name="[8] Just Comma, [,], false" classname="plc.homework.RegexTests" time="0.006"/>
+  <testcase name="[9] John, john, false" classname="plc.homework.RegexTests" time="0.006"/>
+  <testcase name="[10] Newlines (escape test), ['&#10;','&#10;'], false" classname="plc.homework.RegexTests" time="0.006"/>
+  <testcase name="[11] Unmatched Bracket, ['a', 'b', false" classname="plc.homework.RegexTests" time="0.005"/>
+  <testcase name="[12] Parenthesis in place of bracket, ('a', 'b', 'c'), false" classname="plc.homework.RegexTests" time="0.006"/>
+  <testcase name="[13] Leading Digit, 3['a', 'b', 'c'], false" classname="plc.homework.RegexTests" time="0.006"/>
+  <testcase name="[14] Curly braces in place of bracket, {'a', 'b', 'c'}, false" classname="plc.homework.RegexTests" time="0.006"/>
+  <testcase name="[15] open empty close, [' '], true" classname="plc.homework.RegexTests" time="0.007"/>
+  <testcase name="[16] No whitespace, ['a','b','c'], true" classname="plc.homework.RegexTests" time="0.006"/>
+  <testcase name="[17] Trailing comma, ['a', 'b', 'c',], false" classname="plc.homework.RegexTests" time="0.006"/>
+  <testcase name="[18] open empty close no whitespace, [''], true" classname="plc.homework.RegexTests" time="0.01"/>
+  <testcase name="[19] double empty no whitespace, ['',''], true" classname="plc.homework.RegexTests" time="0.011"/>
+  <testcase name="[1] Alphanumeric, thelegend27@gmail.com, true" classname="plc.homework.RegexTests" time="0.01"/>
+  <testcase name="[2] UF Domain, otherdomain@ufl.edu, true" classname="plc.homework.RegexTests" time="0.011"/>
+  <testcase name="[3] Missing Domain Dot, missingdot@gmailcom, false" classname="plc.homework.RegexTests" time="0.01"/>
+  <testcase name="[4] Symbols, symbols#$%@gmail.com, false" classname="plc.homework.RegexTests" time="0.011"/>
+  <testcase name="[5] Symbols in Username, j&amp;son@gmail.com, false" classname="plc.homework.RegexTests" time="0.011"/>
+  <testcase name="[6] Symbols in Server Name, jason@gm&amp;il.com, false" classname="plc.homework.RegexTests" time="0.011"/>
+  <testcase name="[7] Symbols before ., jason@gmail&amp;$%.com, false" classname="plc.homework.RegexTests" time="0.011"/>
+  <testcase name="[8] Symbols in Domain, jason@gmail.c&amp;%$m, false" classname="plc.homework.RegexTests" time="0.011"/>
+  <testcase name="[9] Leading Digit, 13xenn@steam.com, true" classname="plc.homework.RegexTests" time="0.011"/>
+  <testcase name="[10] Server Name Leading Digit, 13xenn@5team.com, true" classname="plc.homework.RegexTests" time="0.012"/>
+  <testcase name="[11] Digit before ., 13xenn@gmail5.com, true" classname="plc.homework.RegexTests" time="0.011"/>
+  <testcase name="[12] Domain Leading Digit, 13xenn@gmail5.5com, false" classname="plc.homework.RegexTests" time="0.015"/>
+  <testcase name="[13] Legal Character Test, ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.@gmail.com, true" classname="plc.homework.RegexTests" time="0.011"/>
+  <testcase name="[14] Illegal Character Test, john[];'/\-=+()*#$%&amp;^*!@gmail.com, false" classname="plc.homework.RegexTests" time="0.015"/>
+  <testcase name="[15] Illegal Char in Domain, john@gm[]il.com, false" classname="plc.homework.RegexTests" time="0.012"/>
+  <testcase name="[1] Negative Integer, -1.0, true" classname="plc.homework.RegexTests" time="0.009"/>
+  <testcase name="[2] Three Digits After Decimal, 10100.001, true" classname="plc.homework.RegexTests" time="0.008"/>
+  <testcase name="[3] Zero, 0.0, true" classname="plc.homework.RegexTests" time="0.009"/>
+  <testcase name="[4] long before and after, 999999999999999.99999999999999999999999999, true" classname="plc.homework.RegexTests" time="0.013"/>
+  <testcase name="[5] Integer Without Decimal, 1, false" classname="plc.homework.RegexTests" time="0.008"/>
+  <testcase name="[6] No Leading Zero, .5, false" classname="plc.homework.RegexTests" time="0.008"/>
+  <testcase name="[7] Period Before Leading Zero, .0.13, false" classname="plc.homework.RegexTests" time="0.008"/>
+  <testcase name="[8] Leading Plus, +3.30, true" classname="plc.homework.RegexTests" time="0.009"/>
+  <testcase name="[9] Period Asterisk, .*.*, false" classname="plc.homework.RegexTests" time="0.01"/>
+  <testcase name="[10] Double Period, 0..0, false" classname="plc.homework.RegexTests" time="0.008"/>
+  <testcase name="[11] Lone Period, ., false" classname="plc.homework.RegexTests" time="0.008"/>
+  <testcase name="[12] Symbols, ()*&amp;^%$#@![]{};':.01, false" classname="plc.homework.RegexTests" time="0.008"/>
+  <testcase name="[13] Leading zero, int following, 0.3, true" classname="plc.homework.RegexTests" time="0.008"/>
+  <testcase name="[14] trailing zero rest ints, 3.345000000000000000, true" classname="plc.homework.RegexTests" time="0.008"/>
+  <testcase name="[15] leading zero with int before decimal pt, 01.03, false" classname="plc.homework.RegexTests" time="0.008"/>
+  <testcase name="[16] 0.0, 0.0, true" classname="plc.homework.RegexTests" time="0.009"/>
+  <testcase name="[17] double lone zero, 00.0, false" classname="plc.homework.RegexTests" time="0.009"/>
+  <testcase name="[1] Valid Escape, &quot;1\t2&quot;, true" classname="plc.homework.RegexTests" time="0.009"/>
+  <testcase name="[2] Empty String, &quot;&quot;, true" classname="plc.homework.RegexTests" time="0.009"/>
+  <testcase name="[3] hello world, &quot;Hello, World!&quot;, true" classname="plc.homework.RegexTests" time="0.008"/>
+  <testcase name="[4] valid escape test, &quot;?&#10;&#13;&#9;'&quot;, true" classname="plc.homework.RegexTests" time="0.009"/>
+  <testcase name="[5] mixed symbols and letters, &quot;/brantly?&quot;, true" classname="plc.homework.RegexTests" time="0.009"/>
+  <testcase name="[6] unclosed double quote, &quot;&quot;gameplay&quot;, false" classname="plc.homework.RegexTests" time="0.008"/>
+  <testcase name="[7] text before quotes, beginning&quot;&quot;, false" classname="plc.homework.RegexTests" time="0.01"/>
+  <testcase name="[8] invalid escape, &quot;invalid\escape&quot;, false" classname="plc.homework.RegexTests" time="0.009"/>
+  <testcase name="[9] vertical seperator, &quot;brrantly|&quot;, true" classname="plc.homework.RegexTests" time="0.008"/>
+  <testcase name="[10] unterminated, &quot;unterminated, false" classname="plc.homework.RegexTests" time="0.016"/>
+  <testcase name="[11] quote then quote escape, &quot;quote\&quot;, false" classname="plc.homework.RegexTests" time="0.009"/>
+  <testcase name="[12] only terminating quote, beginning&quot;, false" classname="plc.homework.RegexTests" time="0.008"/>
+  <testcase name="[13] digits, &quot;123459&quot;, true" classname="plc.homework.RegexTests" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
