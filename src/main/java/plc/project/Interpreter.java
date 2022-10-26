@@ -70,7 +70,9 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Statement.While ast) {
-        throw new UnsupportedOperationException(); //TODO (in lecture)
+        //throw new UnsupportedOperationException(); //TODO (in lecture)
+        System.out.println("inside while visit");
+        return Environment.NIL;
     }
 
     @Override
