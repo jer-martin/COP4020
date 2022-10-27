@@ -50,7 +50,7 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
         if( ast.getValue().isPresent() ) {
             Ast.Expression expr = (Ast.Expression) ast.getValue().get();
             Environment.PlcObject var = new Environment.PlcObject(scope, expr);
-            scope.defineVariable(ast.getName(), false, var);
+            scope.defineVariable(ast.getName(), false, visit(expr));
             //return Environment.create(var);
         }
         else scope.defineVariable(ast.getName(), false, Environment.NIL);
@@ -92,7 +92,11 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Expression.Literal ast) {
-        throw new UnsupportedOperationException(); //TODO
+        if(ast.getLiteral() == null) {
+            return Environment.NIL;
+        }
+        return Environment.create(ast.getLiteral());
+        //throw new UnsupportedOperationException(); //TODO
     }
 
     @Override
