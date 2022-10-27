@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
@@ -45,7 +46,16 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Statement.Declaration ast) {
-        throw new UnsupportedOperationException(); //TODO (in lecture)
+
+        if( ast.getValue().isPresent() ) {
+            Ast.Expression expr = (Ast.Expression) ast.getValue().get();
+            Environment.PlcObject var = new Environment.PlcObject(scope, expr);
+            scope.defineVariable(ast.getName(), false, var);
+            //return Environment.create(var);
+        }
+        else scope.defineVariable(ast.getName(), false, Environment.NIL);
+        return Environment.NIL;
+        //throw new UnsupportedOperationException(); //TODO (in lecture)
     }
 
     @Override
