@@ -407,6 +407,7 @@ final class InterpreterTests {
     void testFunctionExpression(String test, Ast ast, Object expected) {
         Scope scope = new Scope(null);
         scope.defineFunction("function", 0, args -> Environment.create("function"));
+        scope.defineFunction("log", 1, args -> Environment.create("log"));
         test(ast, expected, scope);
     }
 
@@ -417,9 +418,19 @@ final class InterpreterTests {
                         new Ast.Expression.Function("function", Arrays.asList()),
                         "function"
                 ),
+                Arguments.of("Log",
+                        new Ast.Expression.Function("log", Arrays.asList(new Ast.Expression.Literal(BigInteger.ONE))),
+                        "log"
+                ),
                 // print("Hello, World!")
                 Arguments.of("Print",
                         new Ast.Expression.Function("print", Arrays.asList(new Ast.Expression.Literal("Hello, World!"))),
+                        Environment.NIL.getValue()
+                ),
+
+                // print("Farters")
+                Arguments.of("Print",
+                        new Ast.Expression.Function("print", Arrays.asList(new Ast.Expression.Literal("Farters"))),
                         Environment.NIL.getValue()
                 )
         );

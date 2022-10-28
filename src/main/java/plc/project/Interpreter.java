@@ -41,7 +41,9 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Statement.Expression ast) {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        visit(ast.getExpression());
+        return Environment.NIL;
     }
 
     @Override
@@ -81,13 +83,26 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
     @Override
     public Environment.PlcObject visit(Ast.Statement.While ast) {
         //throw new UnsupportedOperationException(); //TODO (in lecture)
-        System.out.println("inside while visit");
+        //System.out.println("inside while visit");
+        while (requireType(Boolean.class, visit(ast.getCondition()))) {
+             try {
+                 scope = new Scope(scope);
+                 for (Ast.Statement stmt : ast.getStatements()) {
+                     visit(stmt);
+                 }
+             }
+             finally {
+                 scope = scope.getParent();
+             }
+        }
+
         return Environment.NIL;
     }
 
     @Override
     public Environment.PlcObject visit(Ast.Statement.Return ast) {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        throw new Return(visit(ast.getValue()));
     }
 
     @Override
@@ -101,22 +116,53 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Expression.Group ast) {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        return visit(ast.getExpression());
     }
+
 
     @Override
     public Environment.PlcObject visit(Ast.Expression.Binary ast) {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+
+
+        String op = ast.getOperator();
+
+        if (op.equals("&&")) {
+            if (requireType(Boolean.class, visit(ast.getLeft())) == requireType(Boolean.class, visit(ast.getRight()))) // if types match
+                return visit(ast.getLeft()); // return left
+            else return Environment.create(Boolean.FALSE); // if not return false
+        }
+
+
+        return Environment.NIL;
     }
 
     @Override
     public Environment.PlcObject visit(Ast.Expression.Access ast) {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+
+        if (ast.getOffset().isPresent()) {
+            return Environment.create(ast.getOffset());
+        }
+        return scope.lookupVariable(ast.getName()).getValue();
+
     }
 
     @Override
     public Environment.PlcObject visit(Ast.Expression.Function ast) {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        try {
+            scope = new Scope(scope);
+            List<Environment.PlcObject> args = new ArrayList<>();
+            for (Ast.Expression arg : ast.getArguments()) {
+                args.add(visit(arg));
+            }
+            return scope.lookupFunction(ast.getName(), args.size()).invoke(args);
+        }
+        finally {
+            scope = scope.getParent(); // return scope
+        }
     }
 
     @Override
