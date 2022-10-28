@@ -178,6 +178,22 @@ final class InterpreterTests {
         Assertions.assertEquals(expected, scope.lookupVariable("list").getValue().getValue());
     }
 
+    @Test
+    void testListAssignmentStatement2() {
+        // list[1] = 7;
+        List<Object> expected = Arrays.asList(BigInteger.ONE, BigInteger.valueOf(7), BigInteger.valueOf(15));
+        List<Object> list = Arrays.asList(BigInteger.ONE, BigInteger.valueOf(5), BigInteger.valueOf(15));
+
+        Scope scope = new Scope(null);
+        scope.defineVariable("list", true, Environment.create(list));
+        test(new Ast.Statement.Assignment(
+                new Ast.Expression.Access(Optional.of(new Ast.Expression.Literal(BigInteger.valueOf(1))), "list"),
+                new Ast.Expression.Literal(BigInteger.valueOf(7))
+        ), Environment.NIL.getValue(), scope);
+
+        Assertions.assertEquals(expected, scope.lookupVariable("list").getValue().getValue());
+    }
+
     @ParameterizedTest
     @MethodSource
     void testIfStatement(String test, Ast.Statement.If ast, Object expected) {
@@ -323,6 +339,22 @@ final class InterpreterTests {
                         ),
                         false
                 ),
+//                // TRUE && undefined
+//                Arguments.of("And (Short Circuit)",
+//                        new Ast.Expression.Binary("&&",
+//                                new Ast.Expression.Literal(true),
+//                                new Ast.Expression.Access(Optional.empty(), "undefined")
+//                        ),
+//                        true
+//                ),
+                // TRUE || FALSE
+                Arguments.of("Or",
+                        new Ast.Expression.Binary("||",
+                                new Ast.Expression.Literal(true),
+                                new Ast.Expression.Literal(false)
+                        ),
+                        true
+                ),
                 // TRUE || undefined
                 Arguments.of("Or (Short Circuit)",
                         new Ast.Expression.Binary("||",
@@ -339,13 +371,53 @@ final class InterpreterTests {
                         ),
                         true
                 ),
+                // 1 < 10
+                Arguments.of("Flipped Less Than",
+                        new Ast.Expression.Binary("<",
+                                new Ast.Expression.Literal(BigInteger.TEN),
+                                new Ast.Expression.Literal(BigInteger.ONE)
+                        ),
+                        false
+                ),
+                // 1 < 10
+                Arguments.of("Greater Than",
+                        new Ast.Expression.Binary(">",
+                                new Ast.Expression.Literal(BigInteger.ONE),
+                                new Ast.Expression.Literal(BigInteger.TEN)
+                        ),
+                        false
+                ),
+                // 1 < 10
+                Arguments.of("Flipped Greater Than",
+                        new Ast.Expression.Binary(">",
+                                new Ast.Expression.Literal(BigInteger.TEN),
+                                new Ast.Expression.Literal(BigInteger.ONE)
+                        ),
+                        true
+                ),
                 // 1 == 10
-                Arguments.of("Equal",
+                Arguments.of("False Equal",
                         new Ast.Expression.Binary("==",
                                 new Ast.Expression.Literal(BigInteger.ONE),
                                 new Ast.Expression.Literal(BigInteger.TEN)
                         ),
                         false
+                ),
+                // 1 == 1
+                Arguments.of("True Equal",
+                        new Ast.Expression.Binary("==",
+                                new Ast.Expression.Literal(BigInteger.ONE),
+                                new Ast.Expression.Literal(BigInteger.ONE)
+                        ),
+                        true
+                ),
+                // 1 != 10
+                Arguments.of("Not Equal",
+                        new Ast.Expression.Binary("!=",
+                                new Ast.Expression.Literal(BigInteger.ONE),
+                                new Ast.Expression.Literal(BigInteger.TEN)
+                        ),
+                        true
                 ),
                 // "a" + "b"
                 Arguments.of("Concatenation",
@@ -363,13 +435,52 @@ final class InterpreterTests {
                         ),
                         BigInteger.valueOf(11)
                 ),
+                // 1.2 + 3.4
+                Arguments.of("Decimal Addition",
+                        new Ast.Expression.Binary("+",
+                                new Ast.Expression.Literal(new BigDecimal("1.2")),
+                                new Ast.Expression.Literal(new BigDecimal("3.4"))
+                        ),
+                        new BigDecimal("4.6")
+                ),
+                // 1 + 10
+                Arguments.of("Subtraction",
+                        new Ast.Expression.Binary("-",
+                                new Ast.Expression.Literal(BigInteger.ONE),
+                                new Ast.Expression.Literal(BigInteger.TEN)
+                        ),
+                        BigInteger.valueOf(-9)
+                ),
+                // 1.2 + 3.4
+                Arguments.of("Decimal Subtraction",
+                        new Ast.Expression.Binary("-",
+                                new Ast.Expression.Literal(new BigDecimal("1.2")),
+                                new Ast.Expression.Literal(new BigDecimal("3.4"))
+                        ),
+                        new BigDecimal("-2.2")
+                ),
                 // 1.2 / 3.4
                 Arguments.of("Division",
                         new Ast.Expression.Binary("/",
                                 new Ast.Expression.Literal(new BigDecimal("1.2")),
                                 new Ast.Expression.Literal(new BigDecimal("3.4"))
                         ),
-                        new BigDecimal("0.4")
+                        new BigDecimal("0.4") // TODO: should this be precision 2?
+                ),
+                Arguments.of("Division by Zero",
+                        new Ast.Expression.Binary("/",
+                                new Ast.Expression.Literal(new BigDecimal("1.2")),
+                                new Ast.Expression.Literal(new BigDecimal("0"))
+                        ),
+                        null
+                ),
+                // 1.2 * 3.4
+                Arguments.of("Multiplication",
+                        new Ast.Expression.Binary("*",
+                                new Ast.Expression.Literal(new BigDecimal("1.2")),
+                                new Ast.Expression.Literal(new BigDecimal("3.4"))
+                        ),
+                        new BigDecimal("4.1") //TODO: precision 2 here gets it to 4.08, precision 1 only 4
                 )
         );
     }

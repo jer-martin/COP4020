@@ -2,6 +2,7 @@ package plc.project;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +63,50 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Statement.Assignment ast) {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        Ast.Expression acc = ast.getReceiver();
+        if (acc.getClass().equals(Ast.Expression.Access.class)) {
+            try {
+                Ast.Expression.Access postcheck = (Ast.Expression.Access) ast.getReceiver();
+                scope = new Scope(scope);
+                if (postcheck.getOffset().isPresent()) { // this means it is a list
+
+                    List<Object> list = new ArrayList<>();
+
+                    Ast.Expression.Literal off = (Ast.Expression.Literal) postcheck.getOffset().get();
+                    BigInteger offset = (BigInteger) off.getLiteral();
+                    System.out.println(postcheck.getName());// list name
+                    System.out.println(offset); // offset
+                    System.out.println();
+
+                    //visit(postcheck);
+
+                    // TODO: WHY THE HELL DOES THIS WORK
+                    Object values = scope.lookupVariable(postcheck.getName()).getValue().getValue();
+                    list = (List<Object>) values;
+                    Object futureval = visit(ast.getValue()).getValue();
+//                    System.out.println(values); // clean set of values from the list
+//                    System.out.println(futureval); // the val wanted to be changed to
+//                    System.out.println(list);
+//                    System.out.println(list.get(offset.intValue()));
+                    list.set(offset.intValue(), futureval);
+                    //System.out.println(list);
+                    //Environment.create(list);
+                    //scope.lookupVariable(postcheck.getName()).setValue();
+
+                    //Ast.Expression.PlcList list = new Ast.Expression.PlcList();
+                    // TODO: IT DOESNT EVEN RETURN ANYTHING IT JUST DOWNLOADS A LIST AND SETS THE LIST INDEX NEEDED AND THEN IT PASSES?????
+                }
+                else { // this means its just a variable
+                    scope.lookupVariable(postcheck.getName()).setValue(visit(ast.getValue()));
+                }
+            }
+            finally {
+                scope = scope.getParent();
+            }
+        }
+        else throw new RuntimeException("wrong type for assignment");
+        return Environment.NIL;
     }
 
     @Override
@@ -129,9 +173,136 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
         String op = ast.getOperator();
 
         if (op.equals("&&")) {
-            if (requireType(Boolean.class, visit(ast.getLeft())) == requireType(Boolean.class, visit(ast.getRight()))) // if types match
+            // TODO: THIS ONLY WORKS WHEN BOTH EXIST?
+            if (requireType(Boolean.class, visit(ast.getLeft())) == requireType(Boolean.class, visit(ast.getRight())))
                 return visit(ast.getLeft()); // return left
             else return Environment.create(Boolean.FALSE); // if not return false
+        }
+
+        if (op.equals("||")) {
+            if (requireType(Boolean.class, visit(ast.getLeft())))
+                return visit(ast.getLeft()); // return left
+            if (requireType(Boolean.class, visit(ast.getRight())))
+                return visit(ast.getRight()); // return right
+            else return Environment.create(Boolean.FALSE); // if not return false
+        }
+
+        if (op.equals("<")) {
+            if (visit(ast.getLeft()).getValue().getClass() == visit(ast.getRight()).getValue().getClass()) {
+                Comparable<Object> left = (Comparable<Object>) visit(ast.getLeft()).getValue();
+                Comparable<Object> right = (Comparable<Object>) visit(ast.getRight()).getValue();
+                int compare = left.compareTo(right);
+
+                if (compare < 0) return Environment.create(Boolean.TRUE);
+                else return Environment.create(Boolean.FALSE);
+            }
+        }
+
+        if (op.equals(">")) {
+            if (visit(ast.getLeft()).getValue().getClass() == visit(ast.getRight()).getValue().getClass()) {
+                Comparable<Object> left = (Comparable<Object>) visit(ast.getLeft()).getValue();
+                Comparable<Object> right = (Comparable<Object>) visit(ast.getRight()).getValue();
+                int compare = left.compareTo(right);
+
+                if (compare > 0) return Environment.create(Boolean.TRUE);
+                else return Environment.create(Boolean.FALSE);
+            }
+        }
+
+        if (op.equals("==")) {
+            if (visit(ast.getLeft()).getValue().getClass() == visit(ast.getRight()).getValue().getClass()) {
+                Comparable<Object> left = (Comparable<Object>) visit(ast.getLeft()).getValue();
+                Comparable<Object> right = (Comparable<Object>) visit(ast.getRight()).getValue();
+                int compare = left.compareTo(right);
+
+                if (compare == 0) return Environment.create(Boolean.TRUE);
+                else return Environment.create(Boolean.FALSE);
+            }
+        }
+
+        if (op.equals("!=")) {
+            if (visit(ast.getLeft()).getValue().getClass() == visit(ast.getRight()).getValue().getClass()) {
+                Comparable<Object> left = (Comparable<Object>) visit(ast.getLeft()).getValue();
+                Comparable<Object> right = (Comparable<Object>) visit(ast.getRight()).getValue();
+                int compare = left.compareTo(right);
+
+                if (compare != 0) return Environment.create(Boolean.TRUE);
+                else return Environment.create(Boolean.FALSE);
+            }
+        }
+
+        if (op.equals("+")) {
+            //System.out.println("conc");
+
+            // string
+            if (visit(ast.getLeft()).getValue().getClass().equals(String.class) && visit(ast.getRight()).getValue().getClass().equals(String.class)) {
+                //System.out.println("two strings");
+                return Environment.create(visit(ast.getLeft()).getValue().toString() + visit(ast.getRight()).getValue().toString());
+            }
+            // bigDecimal
+            if (visit(ast.getLeft()).getValue().getClass().equals(BigDecimal.class) && visit(ast.getRight()).getValue().getClass().equals(BigDecimal.class)) {
+                //System.out.println("two decimal");
+                return Environment.create(BigDecimal.class.cast(visit(ast.getLeft()).getValue()).add(BigDecimal.class.cast(visit(ast.getRight()).getValue())));
+            }
+            //bigInteger
+            if (visit(ast.getLeft()).getValue().getClass().equals(BigInteger.class) && visit(ast.getRight()).getValue().getClass().equals(BigInteger.class)) {
+                //System.out.println("two integer");
+                return Environment.create(BigInteger.class.cast(visit(ast.getLeft()).getValue()).add(BigInteger.class.cast(visit(ast.getRight()).getValue())));
+            }
+            else throw new RuntimeException("incorrect concatenation types");
+
+        }
+
+        if (op.equals("-")) {
+            //System.out.println("conc");
+
+            // bigDecimal
+            if (visit(ast.getLeft()).getValue().getClass().equals(BigDecimal.class) && visit(ast.getRight()).getValue().getClass().equals(BigDecimal.class)) {
+                //System.out.println("two decimal");
+                return Environment.create(BigDecimal.class.cast(visit(ast.getLeft()).getValue()).subtract(BigDecimal.class.cast(visit(ast.getRight()).getValue())));
+            }
+            //bigInteger
+            if (visit(ast.getLeft()).getValue().getClass().equals(BigInteger.class) && visit(ast.getRight()).getValue().getClass().equals(BigInteger.class)) {
+                //System.out.println("two integer");
+                return Environment.create(BigInteger.class.cast(visit(ast.getLeft()).getValue()).subtract(BigInteger.class.cast(visit(ast.getRight()).getValue())));
+            }
+            else throw new RuntimeException("incorrect concatenation types");
+
+        }
+
+        if (op.equals("/")) {
+            //System.out.println("conc");
+            MathContext mc = new MathContext(1, RoundingMode.HALF_UP) ;
+            // bigDecimal
+            if (visit(ast.getLeft()).getValue().getClass().equals(BigDecimal.class) && visit(ast.getRight()).getValue().getClass().equals(BigDecimal.class)) {
+                if (BigDecimal.class.cast(visit(ast.getRight()).getValue()).equals(BigDecimal.ZERO)) throw new RuntimeException("divide by 0");
+                //System.out.println("two decimal");
+                return Environment.create(BigDecimal.class.cast(visit(ast.getLeft()).getValue()).divide(BigDecimal.class.cast(visit(ast.getRight()).getValue()), mc));
+            }
+            //bigInteger
+            if (visit(ast.getLeft()).getValue().getClass().equals(BigInteger.class) && visit(ast.getRight()).getValue().getClass().equals(BigInteger.class)) {
+                //System.out.println("two integer");
+                return Environment.create(BigInteger.class.cast(visit(ast.getLeft()).getValue()).divide(BigInteger.class.cast(visit(ast.getRight()).getValue())));
+            }
+            else throw new RuntimeException("incorrect division types");
+
+        }
+
+        if (op.equals("*")) {
+            //System.out.println("conc");
+            MathContext mc = new MathContext(2, RoundingMode.HALF_UP) ;
+            // bigDecimal
+            if (visit(ast.getLeft()).getValue().getClass().equals(BigDecimal.class) && visit(ast.getRight()).getValue().getClass().equals(BigDecimal.class)) {
+                //System.out.println("two decimal");
+                return Environment.create(BigDecimal.class.cast(visit(ast.getLeft()).getValue()).multiply(BigDecimal.class.cast(visit(ast.getRight()).getValue()), mc));
+            }
+            //bigInteger
+            if (visit(ast.getLeft()).getValue().getClass().equals(BigInteger.class) && visit(ast.getRight()).getValue().getClass().equals(BigInteger.class)) {
+                //System.out.println("two integer");
+                return Environment.create(BigInteger.class.cast(visit(ast.getLeft()).getValue()).multiply(BigInteger.class.cast(visit(ast.getRight()).getValue())));
+            }
+            else throw new RuntimeException("incorrect multiplication types");
+
         }
 
 
@@ -167,7 +338,19 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Expression.PlcList ast) {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+//        try {
+//            scope = new Scope(scope);
+//            List<Environment.PlcObject> values = new ArrayList<>();
+//            for (Ast.Expression val : ast.getValues()) {
+//                values.add(visit(val));
+//            }
+//            return scope.lookupVariable()
+//        }
+//        finally {
+//            scope = scope.getParent(); // return scope
+//        }
+        return Environment.NIL;
     }
 
     /**
