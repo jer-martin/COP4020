@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Stack;
 
 /**
  * The parser takes the sequence of tokens emitted by the lexer and turns that
@@ -421,25 +422,26 @@ public final class Parser {
         //System.out.println("in logical");
         try {
             //System.out.println("inside try");
-        Ast.Expression output = parseComparisonExpression(); // this gets the value of left
+            Ast.Expression output = parseComparisonExpression(); // this gets the value of left
             //System.out.println(output.toString());
 
-        //TODO: to get precedence working, push OP back onto a stack that tracks operators found and priority of said op
+            //TODO: to get precedence working, push OP back onto a stack that tracks operators found and priority of said op
             //https://www.engr.mun.ca/~theo/Misc/exp_parsing.htm
-        if (match("&&") || match("||")) { // matches for  logical and
-            //System.out.println("matching operator for binary");
-            String op = tokens.get(-1).getLiteral();
-            //System.out.println(op);
+            if (match("&&") || match("||")) { // matches for  logical and
+                //System.out.println("matching operator for binary");
+                String op = tokens.get(-1).getLiteral();
+                //System.out.println(op);
 
-            Ast.Expression right = parseExpression(); //just throws it down the line
-            output = new Ast.Expression.Binary(op, output, right); // this sets output to the binary
-        }
-        return output;
+                Ast.Expression right = parseExpression(); //just throws it down the line
+                output = new Ast.Expression.Binary(op, output, right); // this sets output to the binary
+            }
+            return output;
         }
         catch (ParseException parseException) {
             throw errorHandler("invalid token");
         }
     }
+
 
     /**
      * Parses the {@code equality-expression} rule.

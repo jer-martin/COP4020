@@ -734,9 +734,9 @@ final class ParserTests {
                         ),
                         null
                 ),
-                Arguments.of("Binary Multiplication",
+                Arguments.of("and then or",
                         Arrays.asList(
-                                //expr1 && expr2 || expr3
+                                //(expr1 && expr2) || expr3
                                 new Token(Token.Type.IDENTIFIER, "expr1", 0),
                                 new Token(Token.Type.OPERATOR, "&&", 6),
                                 new Token(Token.Type.IDENTIFIER, "expr2", 9),
@@ -748,6 +748,23 @@ final class ParserTests {
                                 new Ast.Expression.Binary("&&",
                                     new Ast.Expression.Access(Optional.empty(), "expr2"),
                                         new Ast.Expression.Access(Optional.empty(), "expr1")
+                                )
+                        )
+                ),
+                Arguments.of("mult then add",
+                        Arrays.asList(
+                                //expr1 * expr2 + expr3
+                                new Token(Token.Type.IDENTIFIER, "expr1", 0),
+                                new Token(Token.Type.OPERATOR, "*", 6),
+                                new Token(Token.Type.IDENTIFIER, "expr2", 8),
+                                new Token(Token.Type.OPERATOR, "+", 14),
+                                new Token(Token.Type.IDENTIFIER, "expr3", 16)
+                        ),
+                        new Ast.Expression.Binary("*",
+                                new Ast.Expression.Access(Optional.empty(), "expr1"),
+                                new Ast.Expression.Binary("+",
+                                        new Ast.Expression.Access(Optional.empty(), "expr2"),
+                                        new Ast.Expression.Access(Optional.empty(), "expr3")
                                 )
                         )
                 )
