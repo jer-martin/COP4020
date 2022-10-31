@@ -42,7 +42,6 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Statement.Expression ast) {
-        //throw new UnsupportedOperationException(); //TODO
         visit(ast.getExpression());
         return Environment.NIL;
     }
@@ -58,12 +57,10 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
         }
         else scope.defineVariable(ast.getName(), false, Environment.NIL);
         return Environment.NIL;
-        //throw new UnsupportedOperationException(); //TODO (in lecture)
     }
 
     @Override
     public Environment.PlcObject visit(Ast.Statement.Assignment ast) {
-        //throw new UnsupportedOperationException(); //TODO
         Ast.Expression acc = ast.getReceiver();
         if (acc.getClass().equals(Ast.Expression.Access.class)) {
             try {
@@ -141,7 +138,6 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Statement.Return ast) {
-        //throw new UnsupportedOperationException(); //TODO
         throw new Return(visit(ast.getValue()));
     }
 
@@ -151,20 +147,16 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
             return Environment.NIL;
         }
         return Environment.create(ast.getLiteral());
-        //throw new UnsupportedOperationException(); //TODO
     }
 
     @Override
     public Environment.PlcObject visit(Ast.Expression.Group ast) {
-        //throw new UnsupportedOperationException(); //TODO
         return visit(ast.getExpression());
     }
 
 
     @Override
     public Environment.PlcObject visit(Ast.Expression.Binary ast) {
-        //throw new UnsupportedOperationException(); //TODO
-
 
         String op = ast.getOperator();
 
@@ -307,11 +299,10 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Expression.Access ast) {
-        //throw new UnsupportedOperationException(); //TODO
 
         if (ast.getOffset().isPresent()) { // list
             Ast.Expression.Literal off = (Ast.Expression.Literal) ast.getOffset().get();
-            BigInteger offset = (BigInteger) off.getLiteral();
+            BigInteger offset = (BigInteger) off.getLiteral(); // i did this in two lines as to prevent casting issues
             Environment.PlcObject value = scope.lookupVariable(ast.getName()).getValue();
             Object values = scope.lookupVariable(ast.getName()).getValue().getValue();
             //System.out.println(values);
@@ -324,7 +315,6 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Expression.Function ast) {
-        //throw new UnsupportedOperationException(); //TODO
         try {
             scope = new Scope(scope);
             List<Environment.PlcObject> args = new ArrayList<>();
@@ -340,7 +330,6 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Expression.PlcList ast) {
-        //throw new UnsupportedOperationException(); //TODO
         try {
             scope = new Scope(scope);
             List<Object> values = new ArrayList<>();
