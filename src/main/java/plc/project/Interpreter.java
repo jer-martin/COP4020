@@ -36,8 +36,26 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
     }
 
     @Override
-    public Environment.PlcObject visit(Ast.Function ast) {
-        throw new UnsupportedOperationException(); //TODO
+    public Environment.PlcObject visit(Ast.Function ast) { // this defines functions in current scope
+        scope.defineFunction(ast.getName(), ast.getParameters().size(), args -> {
+            try {
+                scope = new Scope(scope);
+
+                for (int i = 0; i < args.size(); i++) { // this defines arguments
+                    scope.defineVariable(ast.getParameters().get(i), true, args.get(i));
+                }
+
+                for (Ast.Statement stmt : ast.getStatements()) {
+                    visit(stmt);
+                }
+            } catch (Return r) {
+                return r.value;
+            } finally {
+                scope = scope.getParent();
+            }
+            return Environment.NIL;
+        });
+        return Environment.NIL;
     }
 
     @Override
