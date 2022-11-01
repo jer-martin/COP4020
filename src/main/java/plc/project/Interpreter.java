@@ -122,7 +122,26 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Statement.If ast) {
-        throw new UnsupportedOperationException(); //TODO
+        if (requireType(Boolean.class, visit(ast.getCondition())) != null) { // checks to make sure visit both exists and is a boolean
+            try {
+                scope = new Scope(scope);
+
+                if ((Boolean)visit(ast.getCondition()).getValue()) { // if condition evaluates to true
+                    for (int i = 0; i < ast.getThenStatements().size(); i++) {
+                        visit(ast.getThenStatements().get(i)); // visit then statements
+                    }
+                }
+                else { // if condition evaluates to false
+                    for (int i = 0; i < ast.getElseStatements().size(); i++) {
+                        visit(ast.getElseStatements().get(i)); // visit else statements
+                    }
+                }
+            }
+            finally {
+                scope = scope.getParent(); // restore scope
+            }
+        }
+        return Environment.NIL;
     }
 
     @Override
