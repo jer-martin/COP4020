@@ -95,25 +95,17 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
                 Ast.Expression.Access postcheck = (Ast.Expression.Access) ast.getReceiver();
                 scope = new Scope(scope);
                 if (postcheck.getOffset().isPresent()) { // this means it is a list
-//                    System.out.println(postcheck); // pc is just reciever
-//                    System.out.println(visit(postcheck).getValue());// visit(postcheck).getValue gives offset inside of an Optional
                     List<Object> list = new ArrayList<>();
-                    //System.out.println(ast.getValue()); // ast.getValue() is futureval (visit(ast.getValue()).getValue())
 
                     Ast.Expression.Literal off = (Ast.Expression.Literal) postcheck.getOffset().get();
                     BigInteger offset = (BigInteger) off.getLiteral();
-//                    System.out.println(postcheck.getName());// list name
-//                    System.out.println(offset); // offset
-//                    System.out.println();
 
-                    //System.out.println(visit(ast.getReceiver()).getValue()); THIS IS JUST THE OFFSET AGAIN
 
                     Object values = scope.lookupVariable(postcheck.getName()).getValue().getValue();
-                    //System.out.println(values);
+                    System.out.println(values);
                     list = (List<Object>) values; // TODO: stupid cast issue again...
                     Object futureval = visit(ast.getValue()).getValue();
                     list.set(offset.intValue(), futureval);
-                    //System.out.println(listobj.getValue());
                     scope.lookupVariable(postcheck.getName()).setValue(Environment.create(list));
 
                    // TODO: does this work correctly??? it takes the values, changes them in a local temp list, then sets values to temp list
@@ -132,6 +124,7 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Statement.If ast) {
+        //System.out.println("evaluating if");
         if (requireType(Boolean.class, visit(ast.getCondition())) != null) { // checks to make sure visit both exists and is a boolean
             try {
                 scope = new Scope(scope);
@@ -156,12 +149,32 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Statement.Switch ast) {
-        throw new UnsupportedOperationException(); //TODO
+
+        System.out.println("evaluating switch");
+        for (int i = 0; i < ast.getCases().size(); i++) { // for each didnt work here for some fuckign reason
+            //requireType(Ast.Statement.Case.class, visit(ast.getCases().get(i)));
+            visit(ast.getCases().get(i));
+            //System.out.println(ast.getCases().get(i).getClass());
+        }
+        //scope.defineFunction(ast.getName(), ast.getParameters().size(), args -> {
+
+        //System.out.println(ast.getCases());
+        //System.out.println(visit(ast.getCondition()));
+//        if (requireType(Boolean.class, visit(ast.getCondition())) != null) { // checks to make sure visit both exists and is a boolean
+//            System.out.println("switch if");
+//        }
+        return Environment.NIL;
     }
 
     @Override
     public Environment.PlcObject visit(Ast.Statement.Case ast) {
-        throw new UnsupportedOperationException(); //TODO
+        System.out.println("evaluating case");
+        //System.out.println(ast.getValue().get());
+        for (Ast.Statement stmt : ast.getStatements()) {
+            //System.out.println(visit(stmt));
+            visit(stmt);
+        }
+        return Environment.NIL;
     }
 
     @Override
