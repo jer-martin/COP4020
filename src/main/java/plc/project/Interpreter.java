@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
     // a change so that git works
@@ -102,7 +101,7 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
 
                     Object values = scope.lookupVariable(postcheck.getName()).getValue().getValue();
-                    System.out.println(values);
+                    //System.out.println(values);
                     list = (List<Object>) values; // TODO: stupid cast issue again...
                     Object futureval = visit(ast.getValue()).getValue();
                     list.set(offset.intValue(), futureval);
@@ -149,31 +148,49 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Statement.Switch ast) {
+        List<Optional<Ast.Expression>> values = new ArrayList<>();
+        Ast.Expression.Access nameexpr = (Ast.Expression.Access) ast.getCondition();
+        String name = nameexpr.getName(); // this gets the name of the switch
+        //System.out.println(name);
+        char variable = (char) scope.lookupVariable(name).getValue().getValue(); // this gets the value of the variable that runs the switch
+        //System.out.println(variable);
+        try {
+            scope = new Scope(scope);
+            for (int i = 0; i < ast.getCases().size(); i++) {
 
-        System.out.println("evaluating switch");
-        for (int i = 0; i < ast.getCases().size(); i++) { // for each didnt work here for some fuckign reason
-            //requireType(Ast.Statement.Case.class, visit(ast.getCases().get(i)));
-            visit(ast.getCases().get(i));
-            //System.out.println(ast.getCases().get(i).getClass());
+                values.add(ast.getCases().get(i).getValue());
+
+
+                Ast.Expression value = values.get(i).orElse(null);
+                Ast.Expression.Literal valueLit = (Ast.Expression.Literal) value;
+                if ( valueLit != null) {
+                    //System.out.println(valueLit.getLiteral());
+                    if (valueLit.getLiteral().equals(variable)) {
+                        //System.out.println("equals");
+                        visit(ast.getCases().get(i));
+                        break;
+                    }
+                }
+                else visit(ast.getCases().get(ast.getCases().size() - 1));
+            }
+
         }
-        //scope.defineFunction(ast.getName(), ast.getParameters().size(), args -> {
+        finally {
+            scope = scope.getParent();
+        }
 
-        //System.out.println(ast.getCases());
-        //System.out.println(visit(ast.getCondition()));
-//        if (requireType(Boolean.class, visit(ast.getCondition())) != null) { // checks to make sure visit both exists and is a boolean
-//            System.out.println("switch if");
-//        }
         return Environment.NIL;
     }
 
     @Override
     public Environment.PlcObject visit(Ast.Statement.Case ast) {
-        System.out.println("evaluating case");
-        //System.out.println(ast.getValue().get());
-        for (Ast.Statement stmt : ast.getStatements()) {
-            //System.out.println(visit(stmt));
-            visit(stmt);
-        }
+        //System.out.println("evaluating case");
+
+            for (Ast.Statement stmt : ast.getStatements()) {
+               visit(stmt);
+            }
+
+
         return Environment.NIL;
     }
 
