@@ -147,17 +147,29 @@ public final class Parser {
             if (match("(")) { // match first parenthesis
                 List<String> parameters = new ArrayList<>();
                 List<Ast.Statement> statements = new ArrayList<>();
-
+                List<String> paramTypes = new ArrayList<>();
+                String returnType = null;
                 while (peek(Token.Type.IDENTIFIER)) { // this gets parameters
                     match(Token.Type.IDENTIFIER);
-
+                    parameters.add(tokens.get(-1).getLiteral());
+                    if (peek(":")) {
+                        match(":");
+                        if (!match(Token.Type.IDENTIFIER)) throw errorHandler("expected Type identifier following colon");
+                        paramTypes.add( tokens.get(-1).getLiteral());
+                        }
                     if (peek(",")) match(",");
                     if (!match(",")) {
-                        if (!peek(")")) throw errorHandler("expected comma between identifiers");
+                       // if (!peek(")")) throw errorHandler("expected comma between identifiers");
                     }
                 }
 
                 if (!match(")")) throw errorHandler("expected closing parenthesis");
+
+                if (peek(":")) {
+                    match(":");
+                    if (!match(Token.Type.IDENTIFIER)) throw errorHandler("expected Type identifier following colon");
+                    returnType = tokens.get(-1).getLiteral();
+                }
 
                 if (peek("DO")) match("DO");
                 else throw errorHandler("expected DO statement");
@@ -174,7 +186,7 @@ public final class Parser {
                 }
                 if (!tokens.get(-1).getLiteral().equals("END")) throw errorHandler("expected END statement");
 
-                return new Ast.Function(name, parameters, statements);
+                return new Ast.Function(name, parameters, paramTypes, Optional.ofNullable(returnType), statements);
             }
             else throw errorHandler("expected parenthesis after function identifier");
 
@@ -258,22 +270,34 @@ public final class Parser {
      * statement, aka {@code LET}.
      */
     public Ast.Statement.Declaration parseDeclarationStatement() throws ParseException {
-        
+
         //match("LET");
         if (!match(Token.Type.IDENTIFIER)) {
             throw errorHandler("expected identifier");
         }
         String name = tokens.get(-1).getLiteral();
+
+        String type = null;
+        if (peek(":")) {
+            match(":");
+            if (!peek(Token.Type.IDENTIFIER)) throw errorHandler("expected Type identifier");
+            match(Token.Type.IDENTIFIER);
+            type = tokens.get(-1).getLiteral();
+//            System.out.println(tokens.get(-1).getLiteral());
+//                       System.out.println(tokens.get(-2).getLiteral());
+            System.out.println(type);
+        }
         Optional<Ast.Expression> value = Optional.empty();
         Optional<Object> temp = Optional.empty();
         if (match("=")) {
             value = Optional.of(parseExpression());
- //           temp = Optional.of(parseExpression());\
+            //           temp = Optional.of(parseExpression());\
         }
         if (!match(";")) {
             throw errorHandler("expected semicolon");
         }
-        return new Ast.Statement.Declaration(name, value);
+        System.out.println(type);
+        return new Ast.Statement.Declaration(name, Optional.ofNullable(type), value);
     }
 
     /**
