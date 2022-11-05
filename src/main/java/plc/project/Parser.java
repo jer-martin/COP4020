@@ -115,7 +115,7 @@ public final class Parser {
         match("VAR");
         Ast.Statement.Declaration declaration = parseDeclarationStatement();
         //TODO: add try catch here
-
+        if (declaration.getTypeName().isPresent()) return new Ast.Global(declaration.getName(), declaration.getTypeName().get(), true, declaration.getValue());
         return new Ast.Global(declaration.getName(), true, declaration.getValue());
     }
 
@@ -127,7 +127,7 @@ public final class Parser {
         
         match("VAL");
         Ast.Statement.Declaration declaration = parseDeclarationStatement();
-
+        if (declaration.getTypeName().isPresent()) return new Ast.Global(declaration.getName(), declaration.getTypeName().get(), false, declaration.getValue());
         return new Ast.Global(declaration.getName(), false, declaration.getValue());
     }
 
@@ -285,7 +285,7 @@ public final class Parser {
             type = tokens.get(-1).getLiteral();
 //            System.out.println(tokens.get(-1).getLiteral());
 //                       System.out.println(tokens.get(-2).getLiteral());
-            System.out.println(type);
+            //System.out.println(type);
         }
         Optional<Ast.Expression> value = Optional.empty();
         Optional<Object> temp = Optional.empty();
@@ -296,7 +296,7 @@ public final class Parser {
         if (!match(";")) {
             throw errorHandler("expected semicolon");
         }
-        System.out.println(type);
+        //System.out.println(type);
         return new Ast.Statement.Declaration(name, Optional.ofNullable(type), value);
     }
 
@@ -629,7 +629,7 @@ public final class Parser {
 
             if (peek("[")) { // this is access
                 match("[");
-                System.out.println("matching [");
+                //System.out.println("matching [");
                 List<Ast.Expression> args = new ArrayList<Ast.Expression>(); // i just copied the code from the function lol
 
                 while (!peek("]")){
@@ -639,11 +639,11 @@ public final class Parser {
                         if (peek("]"))
                             throw errorHandler("trailing comma");
                     }
-                    System.out.println("inside primary while");
+                    //System.out.println("inside primary while");
                 }
                 match("]");
-                System.out.println(tokens.get(-1).getLiteral());
-                System.out.println(tokens.get(-3).getLiteral());
+                //System.out.println(tokens.get(-1).getLiteral());
+                //System.out.println(tokens.get(-3).getLiteral());
                 return new Ast.Expression.Access(Optional.of(new Ast.Expression.Access(Optional.empty(), tokens.get(-2).getLiteral())), tokens.get(-4).getLiteral());
             }
             return new Ast.Expression.Access(Optional.empty(), out);
