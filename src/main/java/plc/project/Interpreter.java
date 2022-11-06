@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
 public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
     // a change so that git works
     private Scope scope = new Scope(null);
@@ -369,7 +368,22 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
             else throw new RuntimeException("incorrect multiplication types");
 
         }
+        if (op.equals("^")) {
+            //System.out.println("conc");
+            MathContext mc = new MathContext(2, RoundingMode.HALF_UP) ;
+            if (visit(ast.getLeft()).getValue().getClass().equals(BigInteger.class) && visit(ast.getRight()).getValue().getClass().equals(BigInteger.class)) {
+                //System.out.println("two integer");
+                int result = visit(ast.getLeft()).getValue().hashCode();
+                int result2 = visit(ast.getRight()).getValue().hashCode();
+                //System.out.println(result + " " + result2);
+                //return Environment.create((int)(visit(ast.getLeft()).getValue()).pow((int)(visit(ast.getRight()).getValue())));
+                long result3 = (long) Math.pow(result, result2);
+                BigInteger out = BigInteger.valueOf(result3);
+                return Environment.create(out);
+            }
+            else throw new RuntimeException("incorrect multiplication types");
 
+        }
 
         return Environment.NIL;
     }

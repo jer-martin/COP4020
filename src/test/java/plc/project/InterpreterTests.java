@@ -513,6 +513,22 @@ final class InterpreterTests {
                                 new Ast.Expression.Literal(new BigDecimal("3.4"))
                         ),
                         new BigDecimal("4.1") //TODO: precision 2 here gets it to 4.08, precision 1 only 4
+                ),
+                // 2 ^ 3
+                Arguments.of("Ez Power",
+                        new Ast.Expression.Binary("^",
+                                new Ast.Expression.Literal(new BigInteger("2")),
+                                new Ast.Expression.Literal(new BigInteger("3"))
+                        ),
+                        new BigInteger("8") //TODO: precision 2 here gets it to 4.08, precision 1 only 4
+                ),
+                // 2 ^ 32
+                Arguments.of("Limit Power",
+                        new Ast.Expression.Binary("^",
+                                new Ast.Expression.Literal(new BigInteger("2")),
+                                new Ast.Expression.Literal(new BigInteger("32"))
+                        ),
+                        new BigInteger("4294967296") //TODO: precision 2 here gets it to 4.08, precision 1 only 4
                 )
         );
     }
