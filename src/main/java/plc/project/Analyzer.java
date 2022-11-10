@@ -41,7 +41,11 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Statement.Expression ast) {
-        throw new UnsupportedOperationException();  // TODO
+        if (!(ast.getExpression() instanceof Ast.Expression.Function)) {
+            throw new RuntimeException("Expression statement must be a function call.");
+        }
+        visit(ast.getExpression());
+        return null;
     }
 
     @Override
@@ -64,7 +68,35 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Statement.If ast) {
-        throw new UnsupportedOperationException();  // TODO
+        try {
+            visit(ast.getCondition());
+            if (ast.getThenStatements().isEmpty()) throw new RuntimeException("expected then statements");
+
+            requireAssignable(Environment.Type.BOOLEAN, ast.getCondition().getType());
+
+            for (Ast.Statement then : ast.getThenStatements()) {
+                try {
+                    scope = new Scope(scope);
+                    visit(then);
+                } finally {
+                    scope = scope.getParent();
+                }
+            }
+            if (!ast.getElseStatements().isEmpty()) {
+                for (Ast.Statement elseStmt : ast.getElseStatements()) {
+                    try {
+                        scope = new Scope(scope);
+                        visit(elseStmt);
+                    } finally {
+                        scope = scope.getParent();
+                    }
+                }
+            }
+        }
+        catch (RuntimeException e) {
+            throw new RuntimeException();
+        }
+        return null;
     }
 
     @Override
@@ -130,18 +162,41 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expression.Binary ast) {
-        throw new UnsupportedOperationException();  // TODO
+      throw new UnsupportedOperationException();  // TODO
     }
 
     @Override
     public Void visit(Ast.Expression.Access ast) {
+        //TODO: COMPLETE IMPLEMENTATION OF THIS
       ast.setVariable(scope.lookupVariable(ast.getName()));
       return null;
     }
 
     @Override
     public Void visit(Ast.Expression.Function ast) {
-        throw new UnsupportedOperationException();  // TODO
+        try {
+            if (ast.getArguments().isEmpty()) {
+                //TODO: this is method it should not throw an exception
+                throw new RuntimeException("expected arguments");
+            }
+            Environment.Function func = scope.lookupFunction(ast.getName(), ast.getArguments().size());
+
+            List<Ast.Expression> args = ast.getArguments();
+            List<Environment.Type> argTypes = func.getParameterTypes();
+
+            for (int i = 0; i < args.size(); i++) {
+                Ast.Expression arg = args.get(i);
+                Environment.Type argType = argTypes.get(i);
+                visit(arg);
+                requireAssignable(argType, arg.getType());
+            }
+
+            ast.setFunction(func);
+        }
+        catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
     }
 
     @Override
