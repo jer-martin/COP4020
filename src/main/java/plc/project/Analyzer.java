@@ -110,7 +110,9 @@ public final class Analyzer implements Ast.Visitor<Void> {
     }
 
     public static void requireAssignable(Environment.Type target, Environment.Type type) {
-        throw new UnsupportedOperationException();  // TODO
+        if (type != target && target != Environment.Type.ANY && target != Environment.Type.COMPARABLE) {
+            throw new RuntimeException("Expected type " + target + ", received " + type + ".");
+        }
     }
 
 }
