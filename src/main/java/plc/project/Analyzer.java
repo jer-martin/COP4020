@@ -51,7 +51,15 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Statement.Assignment ast) {
-        throw new UnsupportedOperationException();  // TODO
+        if (!(ast.getReceiver() instanceof Ast.Expression.Access)) {
+           throw new RuntimeException("expected access expression");
+        }
+        visit(ast.getReceiver());
+        visit(ast.getValue());
+
+        requireAssignable(ast.getReceiver().getType(), ast.getValue().getType());
+
+        return null;
     }
 
     @Override
@@ -96,7 +104,7 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expression.Access ast) {
-        throw new UnsupportedOperationException();  // TODO
+       throw new UnsupportedOperationException();  // TODO
     }
 
     @Override
