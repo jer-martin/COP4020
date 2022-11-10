@@ -89,7 +89,35 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expression.Literal ast) {
-        throw new UnsupportedOperationException();  // TODO
+        Object literal = ast.getLiteral();
+
+        if (literal == null) ast.setType(Environment.Type.NIL);
+        else if (literal instanceof Boolean) ast.setType(Environment.Type.BOOLEAN);
+
+        else if (literal instanceof Character) ast.setType(Environment.Type.CHARACTER);
+        else if (literal instanceof String) ast.setType(Environment.Type.STRING);
+
+        else if (literal instanceof BigInteger) {
+            //you have to check for size on these
+            BigInteger value  = (BigInteger) literal;
+            if (value.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) <= 0 && value.compareTo(BigInteger.valueOf(Integer.MIN_VALUE)) >= 0) {
+                ast.setType(Environment.Type.INTEGER);
+            } else {
+                throw new RuntimeException("integer literal out of range of int");
+            }
+        }
+        else if (literal instanceof BigDecimal) {
+            //you have to check for size on these
+            BigDecimal value = (BigDecimal) literal;
+            if (value.compareTo(BigDecimal.valueOf(Double.MAX_VALUE)) <= 0 && value.compareTo(BigDecimal.valueOf(Double.MIN_VALUE)) >= 0) {
+                ast.setType(Environment.Type.INTEGER);
+            } else {
+                throw new RuntimeException("decimal literal out of range of Double");
+            }
+        }
+
+        else throw new RuntimeException("unknown literal type");
+        return null;
     }
 
     @Override
@@ -104,7 +132,8 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expression.Access ast) {
-       throw new UnsupportedOperationException();  // TODO
+      ast.setVariable(scope.lookupVariable(ast.getName()));
+      return null;
     }
 
     @Override
