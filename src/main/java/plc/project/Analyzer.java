@@ -84,7 +84,10 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Statement.Return ast) {
-        throw new UnsupportedOperationException();  // TODO
+        if (ast.getValue().getType().toString().equals(this.function.getReturnTypeName().toString())) {
+            throw new RuntimeException("expected return type " + this.function.getReturnTypeName() + " but got " + ast.getValue().getType());
+        }
+        return null;
     }
 
     @Override
