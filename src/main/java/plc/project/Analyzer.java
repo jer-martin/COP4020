@@ -31,7 +31,22 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Global ast) {
-        throw new UnsupportedOperationException();  // TODO
+       try {
+           if (ast.getValue().isPresent()) {
+               visit(ast.getValue().get());
+               requireAssignable(Environment.getType(ast.getTypeName()), ast.getValue().get().getType());
+               scope.defineVariable(ast.getName(), ast.getName(), ast.getValue().get().getType(), ast.getMutable(), Environment.NIL);
+               ast.setVariable(scope.lookupVariable(ast.getName()));
+           }
+           else {
+               scope.defineVariable(ast.getName(), ast.getName(), Environment.getType(ast.getTypeName()), ast.getMutable(), Environment.NIL);
+               ast.setVariable(scope.lookupVariable(ast.getName()));
+           }
+       }
+       catch (RuntimeException e) {
+           throw new RuntimeException(e.getMessage());
+       }
+       return null;
     }
 
     @Override
@@ -50,7 +65,33 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Statement.Declaration ast) {
-        throw new UnsupportedOperationException();  // TODO
+        try{
+
+            if (!ast.getValue().isPresent() && !ast.getTypeName().isPresent()) {
+                throw new RuntimeException("Declaration must have a type or an initial value.");
+            }
+
+            Environment.Type type = null;
+
+            if (ast.getTypeName().isPresent()) {
+               type = Environment.getType(ast.getTypeName().get());
+            }
+            if (ast.getValue().isPresent()) {
+                visit(ast.getValue().get());
+                if (type == null) {
+                    type = ast.getValue().get().getType();
+                }
+                requireAssignable(type, ast.getValue().get().getType());
+            }
+
+
+            Environment.Variable var = scope.defineVariable(ast.getName(), ast.getName(), type, ast.getVariable().getMutable(), Environment.NIL);
+            ast.setVariable(var);
+        }
+        catch (RuntimeException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        return null;
     }
 
     @Override
@@ -177,7 +218,9 @@ public final class Analyzer implements Ast.Visitor<Void> {
         try {
             if (ast.getArguments().isEmpty()) {
                 //TODO: this is method it should not throw an exception
-                throw new RuntimeException("expected arguments");
+                //throw new RuntimeException("expected arguments");
+
+
             }
             Environment.Function func = scope.lookupFunction(ast.getName(), ast.getArguments().size());
 
