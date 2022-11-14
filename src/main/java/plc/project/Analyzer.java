@@ -26,7 +26,18 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Source ast) {
-        throw new UnsupportedOperationException();  // TODO
+        if (scope.lookupFunction("main", 0) != null  && scope.lookupFunction("main", 0).getReturnType() == Environment.Type.INTEGER) {
+           for (Ast.Global global : ast.getGlobals()) {
+              visit(global);
+           }
+           for (Ast.Function function : ast.getFunctions()) {
+              visit(function);
+           }
+        }
+        else {
+            throw new RuntimeException("The function main/0 is not defined in this scope.");
+        }
+        return null;
     }
 
     @Override
