@@ -219,7 +219,14 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expression.Access ast) {
-        //TODO: COMPLETE IMPLEMENTATION OF THIS
+
+        if (ast.getOffset().isPresent()) { // is global
+            visit(ast.getOffset().get());
+            ast.setVariable(ast.getOffset().get().getType().getGlobal(ast.getName()));
+        }
+        else { // isnt global
+            ast.setVariable(scope.lookupVariable(ast.getName()));
+        }
       ast.setVariable(scope.lookupVariable(ast.getName()));
       return null;
     }
