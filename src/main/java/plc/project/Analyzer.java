@@ -15,6 +15,7 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     public Scope scope;
     private Ast.Function function;
+    private Environment.Type retType;
 
     public Analyzer(Scope parent) {
         scope = new Scope(parent);
@@ -63,15 +64,19 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Function ast) {
+
+
         try {
             List<Environment.Type> paramTypes = new ArrayList<>();
             if (!ast.getParameterTypeNames().isEmpty()) {
                 ast.getParameterTypeNames().forEach(type -> paramTypes.add(Environment.getType(type))); // this obviously collects paramtypes and adds them to a list
             }
-            Environment.Type retType = Environment.Type.NIL;
 
             if (ast.getReturnTypeName().isPresent()) {
                 retType = Environment.getType(ast.getReturnTypeName().get());
+            }
+            else {
+                retType = Environment.Type.NIL;
             }
 
             scope.defineFunction(ast.getName(), ast.getName(), paramTypes, retType, args -> Environment.NIL);
@@ -93,6 +98,7 @@ public final class Analyzer implements Ast.Visitor<Void> {
         }
         catch (RuntimeException e) {
             throw new RuntimeException(e.getMessage());
+            //System.out.println("caught an error: " + e.getMessage());
         }
 
         return null;
@@ -199,15 +205,36 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Statement.While ast) {
-        throw new UnsupportedOperationException();  // TODO
+        try {
+            visit(ast.getCondition());
+            requireAssignable(Environment.Type.BOOLEAN, ast.getCondition().getType());
+            try {
+                scope = new Scope(scope);
+                for (Ast.Statement statement : ast.getStatements()) {
+                    visit(statement);
+                }
+            }
+            finally {
+                scope = scope.getParent();
+            }
+        }
+        catch (RuntimeException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return null;
     }
 
     @Override
     public Void visit(Ast.Statement.Return ast) {
-        if (ast.getValue().getType().toString().equals(this.function.getReturnTypeName().toString())) {
-            throw new RuntimeException("expected return type " + this.function.getReturnTypeName() + " but got " + ast.getValue().getType());
-        }
-        return null;
+       try {
+           visit(ast.getValue());
+           requireAssignable(retType, ast.getValue().getType());
+       }
+       catch (RuntimeException e) {
+           throw new RuntimeException(e.getMessage());
+       }
+       return null;
     }
 
     @Override
@@ -225,6 +252,7 @@ public final class Analyzer implements Ast.Visitor<Void> {
             BigInteger value  = (BigInteger) literal;
             if (value.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) <= 0 && value.compareTo(BigInteger.valueOf(Integer.MIN_VALUE)) >= 0) {
                 ast.setType(Environment.Type.INTEGER);
+                System.out.println("type set to integer: " + ast.getType().getName());
             } else {
                 throw new RuntimeException("integer literal out of range of int");
             }
@@ -233,7 +261,8 @@ public final class Analyzer implements Ast.Visitor<Void> {
             //you have to check for size on these
             BigDecimal value = (BigDecimal) literal;
             if (value.compareTo(BigDecimal.valueOf(Double.MAX_VALUE)) <= 0 && value.compareTo(BigDecimal.valueOf(Double.MIN_VALUE)) >= 0) {
-                ast.setType(Environment.Type.INTEGER);
+                ast.setType(Environment.Type.DECIMAL);
+                System.out.println("type set to integer: " + ast.getType().getName());
             } else {
                 throw new RuntimeException("decimal literal out of range of Double");
             }
