@@ -94,13 +94,16 @@ public final class Analyzer implements Ast.Visitor<Void> {
                 }
                 requireAssignable(type, ast.getValue().get().getType());
             }
-
-
-            Environment.Variable var = scope.defineVariable(ast.getName(), ast.getName(), type, ast.getVariable().getMutable(), Environment.NIL);
+            //System.out.println("do we get here at all lol");
+            Environment.Variable var = scope.defineVariable(ast.getName(), ast.getName(),type,  true, Environment.NIL);
+            //System.out.println("post define");
+            //System.out.println(scope.lookupVariable(ast.getName()));
             ast.setVariable(var);
+
         }
         catch (RuntimeException e) {
             throw new RuntimeException(e.getMessage());
+            //System.out.println("caught an error");
         }
         return null;
     }
