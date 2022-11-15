@@ -252,7 +252,7 @@ public final class Analyzer implements Ast.Visitor<Void> {
             BigInteger value  = (BigInteger) literal;
             if (value.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) <= 0 && value.compareTo(BigInteger.valueOf(Integer.MIN_VALUE)) >= 0) {
                 ast.setType(Environment.Type.INTEGER);
-                System.out.println("type set to integer: " + ast.getType().getName());
+                //System.out.println("type set to integer: " + ast.getType().getName());
             } else {
                 throw new RuntimeException("integer literal out of range of int");
             }
@@ -262,7 +262,7 @@ public final class Analyzer implements Ast.Visitor<Void> {
             BigDecimal value = (BigDecimal) literal;
             if (value.compareTo(BigDecimal.valueOf(Double.MAX_VALUE)) <= 0 && value.compareTo(BigDecimal.valueOf(Double.MIN_VALUE)) >= 0) {
                 ast.setType(Environment.Type.DECIMAL);
-                System.out.println("type set to integer: " + ast.getType().getName());
+                //System.out.println("type set to integer: " + ast.getType().getName());
             } else {
                 throw new RuntimeException("decimal literal out of range of Double");
             }
@@ -279,7 +279,59 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expression.Binary ast) {
-      throw new UnsupportedOperationException();  // TODO
+        try {
+            Ast.Expression left = ast.getLeft();
+            visit(left);
+            Ast.Expression right = ast.getRight();
+            visit(right);
+            String op = ast.getOperator();
+
+            if (op.equals("&&") || op.equals("||")) {
+                requireAssignable(Environment.Type.BOOLEAN, left.getType());
+                requireAssignable(Environment.Type.BOOLEAN, right.getType());
+                ast.setType(Environment.Type.BOOLEAN);
+            }
+            else if (op.equals("<") || op.equals("<=") || op.equals(">") || op.equals(">=") || op.equals("==") || op.equals("!=")) {
+                requireAssignable(Environment.Type.COMPARABLE, ast.getLeft().getType());
+                requireAssignable(Environment.Type.COMPARABLE, ast.getRight().getType());
+                ast.setType(Environment.Type.BOOLEAN);
+            }
+            else if (op.equals("+")) {
+                // do the normal number stuff but also add string concatenation
+                if (left.getType().equals(Environment.Type.STRING) || right.getType().equals(Environment.Type.STRING)) {
+//                    requireAssignable(Environment.Type.STRING, left.getType());
+//                    requireAssignable(Environment.Type.STRING, right.getType());
+                    ast.setType(Environment.Type.STRING);
+                }
+                else if (left.getType().equals(Environment.Type.DECIMAL) || right.getType().equals(Environment.Type.DECIMAL)) {
+                    requireAssignable(Environment.Type.DECIMAL, left.getType());
+                    requireAssignable(Environment.Type.DECIMAL, right.getType());
+                    ast.setType(Environment.Type.DECIMAL);
+                }
+                else if (left.getType().equals(Environment.Type.INTEGER) || right.getType().equals(Environment.Type.INTEGER)) {
+                    requireAssignable(Environment.Type.INTEGER, left.getType());
+                    requireAssignable(Environment.Type.INTEGER, right.getType());
+                    ast.setType(Environment.Type.INTEGER);
+                }
+                else {
+                    throw new RuntimeException("invalid types for addition");
+                }
+            }
+            else if (op.equals("-") || op.equals("*") || op.equals("/")) {
+                if (left.getType().equals(Environment.Type.DECIMAL) || left.getType().equals(Environment.Type.INTEGER)) {
+                   ast.setType(left.getType());
+                }
+            }
+            else {
+                throw new RuntimeException("unknown binary operator");
+            }
+
+        }
+        catch (RuntimeException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return null;
     }
 
     @Override
