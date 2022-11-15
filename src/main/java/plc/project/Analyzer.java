@@ -2,6 +2,7 @@ package plc.project;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,7 +63,39 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Function ast) {
-        throw new UnsupportedOperationException();  // TODO
+        try {
+            List<Environment.Type> paramTypes = new ArrayList<>();
+            if (!ast.getParameterTypeNames().isEmpty()) {
+                ast.getParameterTypeNames().forEach(type -> paramTypes.add(Environment.getType(type))); // this obviously collects paramtypes and adds them to a list
+            }
+            Environment.Type retType = Environment.Type.NIL;
+
+            if (ast.getReturnTypeName().isPresent()) {
+                retType = Environment.getType(ast.getReturnTypeName().get());
+            }
+
+            scope.defineFunction(ast.getName(), ast.getName(), paramTypes, retType, args -> Environment.NIL);
+
+            if (!ast.getStatements().isEmpty()) {
+                for (Ast.Statement statement : ast.getStatements()) {
+                    try {
+                        scope = new Scope(scope);
+                        visit(statement);
+                    }
+                    finally {
+                        scope = scope.getParent();
+                    }
+                }
+            }
+
+            ast.setFunction(scope.lookupFunction(ast.getName(), ast.getParameterTypeNames().size()));
+
+        }
+        catch (RuntimeException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return null;
     }
 
     @Override
