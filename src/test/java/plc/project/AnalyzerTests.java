@@ -2,6 +2,7 @@ package plc.project;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -9,6 +10,7 @@ import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -600,11 +602,36 @@ public final class AnalyzerTests {
         );
     }
 
+    @Test
+    void testPlcList() {
+        // [1, 5, 10]
+        List<Object> expected = Arrays.asList(BigInteger.ONE, BigInteger.valueOf(5), BigInteger.TEN);
+
+        List<Ast.Expression> values = Arrays.asList(new Ast.Expression.Literal(BigInteger.ONE),
+                new Ast.Expression.Literal(BigInteger.valueOf(5)),
+                new Ast.Expression.Literal(BigInteger.TEN));
+
+        Ast ast = new Ast.Expression.PlcList(values);
+
+        testList(ast, expected, new Scope(null));
+    }
+
     /**
      * Helper function for tests. If {@param expected} is {@code null}, analysis
      * is expected to throw a {@link RuntimeException}.
      */
     private static <T extends Ast> Analyzer test(T ast, T expected, Scope scope) {
+        Analyzer analyzer = new Analyzer(scope);
+        if (expected != null) {
+            analyzer.visit(ast);
+            Assertions.assertEquals(expected, ast);
+        } else {
+            Assertions.assertThrows(RuntimeException.class, () -> analyzer.visit(ast));
+        }
+        return analyzer;
+    }
+
+    private static <T extends Ast> Analyzer testList(Ast ast, Object expected, Scope scope) {
         Analyzer analyzer = new Analyzer(scope);
         if (expected != null) {
             analyzer.visit(ast);

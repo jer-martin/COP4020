@@ -16,6 +16,7 @@ public final class Analyzer implements Ast.Visitor<Void> {
     public Scope scope;
     private Ast.Function function;
     private Environment.Type retType;
+    private Environment.Type conditionType;
 
     public Analyzer(Scope parent) {
         scope = new Scope(parent);
@@ -195,12 +196,30 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Statement.Switch ast) {
-        throw new UnsupportedOperationException();  // TODO
+        visit(ast.getCondition());
+        conditionType = ast.getCondition().getType(); // this is the type of the condition, i made it global so that I can access it easily from case
+        try {
+           for (Ast.Statement.Case caseStmt : ast.getCases()) {
+               visit(caseStmt);
+           }
+       }
+       catch (RuntimeException e) {
+           throw new RuntimeException(e.getMessage());
+       }
+       return null;
     }
 
     @Override
     public Void visit(Ast.Statement.Case ast) {
-        throw new UnsupportedOperationException();  // TODO
+        if (ast.getStatements().isEmpty()) throw new RuntimeException("expected statements");
+        if (ast.getValue().isPresent()) {
+            visit(ast.getValue().get());
+            if (!ast.getValue().get().getType().getJvmName().equals(conditionType.getJvmName())) throw new RuntimeException("case type does not match condition type");
+        }
+        for (Ast.Statement s : ast.getStatements()) {
+            visit(s);
+        }
+        return null;
     }
 
     @Override
@@ -274,7 +293,12 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expression.Group ast) {
-        throw new UnsupportedOperationException();  // TODO
+        if (ast.getExpression() instanceof  Ast.Expression.Binary) {
+            visit(ast.getExpression());
+            ast.setType(ast.getExpression().getType());
+            return null;
+        }
+        throw new RuntimeException("expected binary expression");
     }
 
     @Override
@@ -352,9 +376,9 @@ public final class Analyzer implements Ast.Visitor<Void> {
     public Void visit(Ast.Expression.Function ast) {
         try {
             if (ast.getArguments().isEmpty()) {
-                //TODO: this is method it should not throw an exception
+                //TODO: i think this is fine?
                 //throw new RuntimeException("expected arguments");
-
+                ast.setFunction(scope.lookupFunction(ast.getName(), 0));
 
             }
             Environment.Function func = scope.lookupFunction(ast.getName(), ast.getArguments().size());
@@ -379,7 +403,9 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expression.PlcList ast) {
-        throw new UnsupportedOperationException();  // TODO
+        ast.getValues().forEach(this::visit);
+        return null;
+        //TODO: write a test for this and implement it
     }
 
     public static void requireAssignable(Environment.Type target, Environment.Type type) {
