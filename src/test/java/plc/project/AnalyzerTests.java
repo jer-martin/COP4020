@@ -624,13 +624,13 @@ public final class AnalyzerTests {
                         // LIST list: Integer = [1.0, 2.0];
                         new
                                 Ast.Expression.PlcList(literals),
-                        init(new Ast.Expression.PlcList(literals), ast -> ast.setType(null))
+                        init(new Ast.Expression.PlcList(literals), ast -> ast.setType(Environment.Type.INTEGER))
                 ),
                 Arguments.of("name",
                         // list farter: Integer = [1.0, 2.0];
                         new
                                 Ast.Expression.PlcList(literals),
-                        init(new Ast.Expression.PlcList(literals), ast -> ast.setType(null))
+                        init(new Ast.Expression.PlcList(literals), ast -> ast.setType(Environment.Type.INTEGER))
                 )
         );
     }
