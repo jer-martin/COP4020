@@ -376,7 +376,6 @@ public final class Analyzer implements Ast.Visitor<Void> {
     public Void visit(Ast.Expression.Function ast) {
         try {
             if (ast.getArguments().isEmpty()) {
-                //TODO: i think this is fine?
                 //throw new RuntimeException("expected arguments");
                 ast.setFunction(scope.lookupFunction(ast.getName(), 0));
 
@@ -403,7 +402,12 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expression.PlcList ast) {
-        ast.getValues().forEach(this::visit);
+        //System.out.println("visiting list");
+        ast.getValues().forEach(value -> {
+            visit(value);
+        });
+
+        //System.out.println(ast.getType());
         return null;
         //TODO: write a test for this and implement it
     }

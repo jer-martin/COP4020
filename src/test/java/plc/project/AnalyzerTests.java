@@ -602,18 +602,37 @@ public final class AnalyzerTests {
         );
     }
 
-    @Test
-    void testPlcList() {
-        // [1, 5, 10]
-        List<Object> expected = Arrays.asList(BigInteger.ONE, BigInteger.valueOf(5), BigInteger.TEN);
+    @ParameterizedTest(name = "{0}")
+    @MethodSource
+    public void testList(String test, Ast.Expression.PlcList ast, Ast.Expression.PlcList expected) {
+        test(ast, expected, init(new Scope(null), scope -> {
+            scope.defineVariable("variable", "variable", Environment.Type.INTEGER, true, Environment.NIL);
+            scope.defineVariable("list", "list", Environment.Type.NIL, true, Environment.NIL);
+        }));
+    }
 
-        List<Ast.Expression> values = Arrays.asList(new Ast.Expression.Literal(BigInteger.ONE),
-                new Ast.Expression.Literal(BigInteger.valueOf(5)),
-                new Ast.Expression.Literal(BigInteger.TEN));
+    private static Stream<Arguments> testList() {
 
-        Ast ast = new Ast.Expression.PlcList(values);
+        Ast.Expression.Literal literal = new Ast.Expression.Literal(BigInteger.ONE);
+        literal.setType(Environment.Type.INTEGER);
+        Ast.Expression.Literal literal2 = new Ast.Expression.Literal(BigInteger.ONE);
+        literal2.setType(Environment.Type.INTEGER);
+        List<Ast.Expression> literals = Arrays.asList(literal, literal2);
 
-        testList(ast, expected, new Scope(null));
+        return Stream.of(
+                Arguments.of("List",
+                        // LIST list: Integer = [1.0, 2.0];
+                        new
+                                Ast.Expression.PlcList(literals),
+                        init(new Ast.Expression.PlcList(literals), ast -> ast.setType(null))
+                ),
+                Arguments.of("name",
+                        // list farter: Integer = [1.0, 2.0];
+                        new
+                                Ast.Expression.PlcList(literals),
+                        init(new Ast.Expression.PlcList(literals), ast -> ast.setType(null))
+                )
+        );
     }
 
     /**
@@ -621,17 +640,6 @@ public final class AnalyzerTests {
      * is expected to throw a {@link RuntimeException}.
      */
     private static <T extends Ast> Analyzer test(T ast, T expected, Scope scope) {
-        Analyzer analyzer = new Analyzer(scope);
-        if (expected != null) {
-            analyzer.visit(ast);
-            Assertions.assertEquals(expected, ast);
-        } else {
-            Assertions.assertThrows(RuntimeException.class, () -> analyzer.visit(ast));
-        }
-        return analyzer;
-    }
-
-    private static <T extends Ast> Analyzer testList(Ast ast, Object expected, Scope scope) {
         Analyzer analyzer = new Analyzer(scope);
         if (expected != null) {
             analyzer.visit(ast);
