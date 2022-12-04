@@ -156,7 +156,11 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Statement.Assignment ast) {
-        throw new UnsupportedOperationException(); //TODO
+       print(ast.getReceiver());
+       print(" = ");
+       print(ast.getValue());
+       print(";");
+       return null;
     }
 
     @Override
