@@ -181,7 +181,17 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expression.Function ast) {
-        throw new UnsupportedOperationException(); //TODO
+       Environment.Function function = ast.getFunction();
+       print(function.getJvmName(), "(");
+       if (!ast.getArguments().isEmpty()) {
+           for (int i = 0; i < ast.getArguments().size(); i++) {
+               visit(ast.getArguments().get(i));
+
+               if (i != ast.getArguments().size() - 1) print(", ");
+           }
+       }
+         print(")");
+        return null;
     }
 
     @Override
