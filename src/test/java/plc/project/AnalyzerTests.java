@@ -627,7 +627,7 @@ public final class AnalyzerTests {
                         init(new Ast.Expression.PlcList(literals), ast -> ast.setType(Environment.Type.INTEGER))
                 ),
                 Arguments.of("name",
-                        // list farter: Integer = [1.0, 2.0];
+                        // LIST name: Integer = [1, 2];
                         new
                                 Ast.Expression.PlcList(literals),
                         init(new Ast.Expression.PlcList(literals), ast -> ast.setType(Environment.Type.INTEGER))

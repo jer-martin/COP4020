@@ -406,6 +406,7 @@ public final class Analyzer implements Ast.Visitor<Void> {
         ast.getValues().forEach(value -> {
             visit(value);
             ast.setType(value.getType());
+            requireAssignable(ast.getType(), value.getType());
         });
 
         //System.out.println(ast.getType());
