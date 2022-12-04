@@ -13,6 +13,10 @@ public final class Generator implements Ast.Visitor<Void> {
         this.writer = writer;
     }
 
+    public static String getJVMNameFromType(String name) {
+        return Environment.getType(name).getJvmName();
+    }
+
     private void print(Object... objects) {
         for (Object object : objects) {
             if (object instanceof Ast) {
@@ -54,7 +58,22 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Statement.Declaration ast) {
-        throw new UnsupportedOperationException(); //TODO
+        if (ast.getTypeName().isPresent()) {
+            print(getJVMNameFromType(ast.getTypeName().get()));
+        }
+        else if (ast.getValue().isPresent()) {
+            print(ast.getValue().get().getType().getJvmName());
+        }
+        else throw new RuntimeException("Declaration must have a type or value");
+
+        print(" ", ast.getName());
+
+        if (ast.getValue().isPresent()) {
+            print(" = ", ast.getValue().get());
+        }
+
+        print(";");
+        return null;
     }
 
     @Override

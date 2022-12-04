@@ -1,22 +1,22 @@
 package plc.project;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Tags;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+        import org.junit.jupiter.api.Assertions;
+        import org.junit.jupiter.api.Tags;
+        import org.junit.jupiter.api.Test;
+        import org.junit.jupiter.params.ParameterizedTest;
+        import org.junit.jupiter.params.provider.Arguments;
+        import org.junit.jupiter.params.provider.MethodSource;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
+        import java.io.PrintWriter;
+        import java.io.StringWriter;
+        import java.math.BigDecimal;
+        import java.math.BigInteger;
+        import java.util.Arrays;
+        import java.util.Collections;
+        import java.util.List;
+        import java.util.Optional;
+        import java.util.function.Consumer;
+        import java.util.stream.Stream;
 
 public class GeneratorTests {
 
@@ -167,7 +167,6 @@ public class GeneratorTests {
         );
     }
 
-
     @ParameterizedTest(name = "{0}")
     @MethodSource
     void testSwitchStatement(String test, Ast.Statement.Switch ast, String expected) {
@@ -269,14 +268,6 @@ public class GeneratorTests {
                                 init(new Ast.Expression.Literal("Hello, World!"), ast -> ast.setType(Environment.Type.STRING))
                         )), ast -> ast.setFunction(new Environment.Function("print", "System.out.println", Arrays.asList(Environment.Type.ANY), Environment.Type.NIL, args -> Environment.NIL))),
                         "System.out.println(\"Hello, World!\")"
-                ),
-                Arguments.of("Print 2",
-                        // print("Hello, World!")
-                        init(new Ast.Expression.Function("print", Arrays.asList(
-                                init(new Ast.Expression.Literal("Hello, World!"), ast -> ast.setType(Environment.Type.STRING)),
-                                init(new Ast.Expression.Literal("Hello, World!"), ast -> ast.setType(Environment.Type.STRING))
-                        )), ast -> ast.setFunction(new Environment.Function("print", "System.out.println", Arrays.asList(Environment.Type.ANY), Environment.Type.NIL, args -> Environment.NIL))),
-                        "System.out.println(\"Hello, World!\", \"Hello, World!\")"
                 )
         );
     }
