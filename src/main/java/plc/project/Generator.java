@@ -17,6 +17,10 @@ public final class Generator implements Ast.Visitor<Void> {
         return Environment.getType(name).getJvmName();
     }
 
+    public static Boolean isList(String value) {
+        return (value.contains("{") && value.contains("}"));
+    }
+
     private void print(Object... objects) {
         for (Object object : objects) {
             if (object instanceof Ast) {
@@ -36,17 +40,71 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Source ast) {
-        throw new UnsupportedOperationException(); //TODO
+        print ("public class Main {");
+        newline (indent);
+        newline(indent++);
+        for (Ast.Global global : ast.getGlobals()) {
+            print (global);
+            newline (indent);
+        }
+        print("public static void main(String[] args) {");
+        newline (indent);
+        print("System.exit(new Main().main());");
+        newline (indent--);
+        print("}");
+
+        for (Ast.Function function : ast.getFunctions()) {
+            newline (indent--);
+            newline(indent++);
+            print(function);
+        }
+        newline (indent--);
+        newline(indent);
+        print("}");
+        return null;
     }
 
     @Override
     public Void visit(Ast.Global ast) {
-        throw new UnsupportedOperationException(); //TODO
+       print(getJVMNameFromType(ast.getTypeName()));
+       if (isList(ast.getValue().get().toString())) print("[]"); // this is a stupid implementation TODO: fix it
+
+       print(" ", ast.getName());
+
+       if (ast.getValue().isPresent()) {
+           print(" = ");
+           visit(ast.getValue().get());
+       }
+
+         print(";");
+       return null;
     }
 
     @Override
     public Void visit(Ast.Function ast) {
-        throw new UnsupportedOperationException(); //TODO
+        if (ast.getReturnTypeName().isPresent()) print(getJVMNameFromType(ast.getReturnTypeName().get()));
+        print(" ", ast.getName(), "(");
+        int parameterCount = ast.getParameters().size();
+        int typeNamesCount = ast.getParameterTypeNames().size();
+        if (parameterCount == typeNamesCount && parameterCount > 0) {
+            for (int i = 0; i < parameterCount; i++) {
+                print(getJVMNameFromType(ast.getParameterTypeNames().get(i)));
+                print(" ", ast.getParameters().get(i));
+                if (i < parameterCount - 1) print(", ");
+            }
+        }
+        print(") {");
+        if (!ast.getStatements().isEmpty()) {
+
+            indent++;
+            for (Ast.Statement statement : ast.getStatements()) {
+                print(statement);
+                newline (indent);
+            }
+            newline(indent--);
+        }
+        print("}");
+        return null;
     }
 
     @Override
@@ -240,7 +298,16 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expression.PlcList ast) {
-        throw new UnsupportedOperationException(); //TODO
+        print("{");
+        if (!ast.getValues().isEmpty()) {
+            for (int i = 0; i < ast.getValues().size(); i++) {
+                visit(ast.getValues().get(i));
+
+                if (i != ast.getValues().size() - 1) print(", ");
+            }
+        }
+        print("}");
+        return null;
     }
 
 }

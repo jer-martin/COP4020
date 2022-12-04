@@ -28,6 +28,34 @@ public class GeneratorTests {
 
     private static Stream<Arguments> testSource() {
         return Stream.of(
+                Arguments.of("Single Global",
+                        new Ast.Source(
+                                Arrays.asList(init(new Ast.Global("Global", true, Optional.of(init(new Ast.Expression.Literal(new BigInteger(String.valueOf(10))), ast -> ast.setType(Environment.Type.INTEGER)))),
+                                        ast -> ast.setVariable(new Environment.Variable("Global", "Global", Environment.Type.INTEGER, true, Environment.NIL)))),
+                                Arrays.asList(init(new Ast.Function("main", Arrays.asList(), Arrays.asList(), Optional.of("Integer"), Arrays.asList(
+                                        new Ast.Statement.Expression(init(new Ast.Expression.Function("print", Arrays.asList(
+                                                init(new Ast.Expression.Access(Optional.empty(), "Global"), ast -> ast.setVariable(new Environment.Variable("Global", "Global", Environment.Type.INTEGER, true,Environment.create(10))))
+                                        )), ast -> ast.setFunction(new Environment.Function("print", "System.out.println", Arrays.asList(Environment.Type.INTEGER), Environment.Type.NIL, args -> Environment.NIL)))),
+                                        new Ast.Statement.Return(init(new Ast.Expression.Literal(BigInteger.ZERO), ast -> ast.setType(Environment.Type.INTEGER)))
+                                )), ast -> ast.setFunction(new Environment.Function("main", "main", Arrays.asList(), Environment.Type.INTEGER, args -> Environment.NIL))))
+                        ),
+                        String.join(System.lineSeparator(),
+                                "public class Main {",
+                                "",
+                                "    int Global = 10;",
+                                "    public static void main(String[] args) {",
+                                "        System.exit(new Main().main());",
+                                "    }",
+                                "",
+                                "    int main() {",
+                                "        System.out.println(Global);",
+                                "        return 0;",
+                                "    }",
+                                "",
+                                "}")
+
+                ),
+
                 Arguments.of("Hello, World!",
                         // FUN main(): Integer DO
                         //     print("Hello, World!");
