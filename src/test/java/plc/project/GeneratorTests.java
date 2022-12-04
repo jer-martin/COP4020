@@ -191,6 +191,22 @@ public class GeneratorTests {
                         ),
                         String.join(System.lineSeparator(),
                                 "while (i < 10) {}")
+                ),
+                 Arguments.of("Statements",
+                        new Ast.Statement.While(
+                                init(new Ast.Expression.Binary("<",
+                                                init(new Ast.Expression.Access(Optional.empty(), "i"), ast -> ast.setVariable(new Environment.Variable("i", "i", Environment.Type.INTEGER, true, Environment.NIL))),
+                                                init(new Ast.Expression.Literal(new BigInteger(String.valueOf(10))), ast -> ast.setType(Environment.Type.INTEGER))),
+                                        ast -> ast.setType(Environment.Type.BOOLEAN)),
+                                Arrays.asList(new Ast.Statement.Declaration("name", Optional.empty(), Optional.of(
+                                init(new Ast.Expression.Literal(new BigDecimal("1.0")),ast -> ast.setType(Environment.Type.DECIMAL))
+                        )))
+
+                        ),
+                        String.join(System.lineSeparator(),
+                                "while (i < 10) {" + System.lineSeparator() +
+                                        "    double name = 1.0;" + System.lineSeparator() +
+                                        "}")
                 )
         );
     }
