@@ -77,7 +77,7 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Statement.While ast) {
-        print("while (", ast.getCondition(), "} {");
+        print("while (", ast.getCondition(), ") {");
 
         if (!ast.getStatements().isEmpty()){
             newline(++indent);
@@ -170,9 +170,13 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expression.Access ast) {
-        if (ast.) {
-            print(ast.getReceiver().get(), ".");
+        if (ast.getOffset().isPresent()) {
+            print(ast.getVariable().getValue());
+            print(".");
         }
+
+        print(ast.getName());
+        return null;
     }
 
     @Override
