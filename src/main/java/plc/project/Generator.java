@@ -3,6 +3,7 @@ package plc.project;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 
 public final class Generator implements Ast.Visitor<Void> {
 
@@ -18,7 +19,7 @@ public final class Generator implements Ast.Visitor<Void> {
     }
 
     public static Boolean isList(String value) {
-        return (value.contains("{") && value.contains("}"));
+        return value.contains("PlcList");
     }
 
     private void print(Object... objects) {
@@ -41,34 +42,49 @@ public final class Generator implements Ast.Visitor<Void> {
     @Override
     public Void visit(Ast.Source ast) {
         print ("public class Main {");
-        newline (indent);
-        newline(indent++);
-        for (Ast.Global global : ast.getGlobals()) {
-            print (global);
-            newline (indent);
-        }
-        print("public static void main(String[] args) {");
-        newline (indent);
-        print("System.exit(new Main().main());");
-        newline (indent--);
-        print("}");
+        indent++;
+        newline(0); // blank line
 
-        for (Ast.Function function : ast.getFunctions()) {
-            newline (indent--);
-            newline(indent++);
-            print(function);
+        if (!ast.getGlobals().isEmpty()) {
+            for (Ast.Global global : ast.getGlobals()) {
+                newline(indent);
+                print(global);
+            }
+            //newline(0); // blank line
         }
-        newline (indent--);
+
+        newline(indent);
+        print("public static void main(String[] args) {");
+        indent++;
+        newline(indent);
+        print("System.exit(new Main().main());");
+        indent--;
         newline(indent);
         print("}");
+        newline(0); // blank line
+
+        for (Ast.Function function : ast.getFunctions()) {
+            newline(indent);
+            print(function);
+            //print(function);
+        }
+        newline(0);
+
+        indent--;
+        newline(indent);
+        print("}");
+
         return null;
     }
 
+
     @Override
     public Void visit(Ast.Global ast) {
-       print(getJVMNameFromType(ast.getTypeName()));
-       if (isList(ast.getValue().get().toString())) print("[]"); // this is a stupid implementation TODO: fix it
-
+        //manually print java type name
+        print(ast.getVariable().getType().getJvmName());
+        if (isList(ast.getValue().get().toString())) {
+            print("[]");
+        }
        print(" ", ast.getName());
 
        if (ast.getValue().isPresent()) {
@@ -94,14 +110,18 @@ public final class Generator implements Ast.Visitor<Void> {
             }
         }
         print(") {");
+        //newline(0);
         if (!ast.getStatements().isEmpty()) {
 
             indent++;
             for (Ast.Statement statement : ast.getStatements()) {
+
+               newline(indent);
                 print(statement);
-                newline (indent);
+
             }
-            newline(indent--);
+            indent--;
+            newline(indent);
         }
         print("}");
         return null;
