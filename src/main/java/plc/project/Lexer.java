@@ -72,7 +72,6 @@ public final class Lexer {
     }
 
     public Token lexIdentifier() {
-        System.out.println("Identifier located");
         match("[A-Za-z_0-9-@]"); // matches for identifier, adding numbers to allow for alphanumeric
         while(match("[A-Za-z_0-9-]")); // steps through all chars, making sure they match
         return chars.emit(Token.Type.IDENTIFIER);
@@ -81,16 +80,12 @@ public final class Lexer {
     public Token lexNumber() {
         if (peek("[\\\\+-]?")) match("[\\\\+-]?"); // takes in sign
 
-        System.out.println("Number located");
         if (peek("0")) { // leading zero check and logic branches
-            System.out.println("leading 0 found");
             if (peek("(\\.){1}")) {
-                System.out.println("Decimal point found");
                 while (match("[0-9]+")) ; // takes in the rest of the digits
                 return chars.emit(Token.Type.DECIMAL);
             }
             else {
-                System.out.println("No decimal point after leading zero found");
                 throw new ParseException("expected decimal point after leading zero", chars.index);
             }
         }
@@ -98,26 +93,21 @@ public final class Lexer {
         while (match("[0-9]+")); // no leading zero logic branch
         if (peek("(\\.){1}")) {
             match("(\\.){1}");
-            System.out.println("Decimal point found");
             if (peek("[0-9]+")) {
                 while (match("[0-9]+")) ; // takes in the rest of the digits
                 return chars.emit(Token.Type.DECIMAL);
             }
             else {
-                System.out.println("trailing decimal found");
                 throw new ParseException("Trailing decimal", chars.index);
             }
         }
 
-        System.out.println("No decimal point found");
         while (match("[0-9]+")) ; // takes in the rest of the digits
         return chars.emit(Token.Type.INTEGER);
     }
 
     public Token lexCharacter() {
-        System.out.println("Char located");
         match("'"); // takes in first quote
-        System.out.println("first quote");
         if (peek("\\\\")) { // checks for slash
             match("\\\\");
             lexEscape();
@@ -125,23 +115,17 @@ public final class Lexer {
         else if (peek(".{1}")) { //checks everything else
             match(".{1}"); // this causes empty chars to fail, because it is reading in the second quote
                                     // as the char between the two quotes
-            System.out.println("non newline");
         }
-        System.out.println("about to take in last quote");
 
         if (peek("'")) match("'"); // takes in closing quote
         else {
-            System.out.println("no closing quote found");
             throw new ParseException("expected closing char quote", chars.index);
         }
 
-        System.out.println("last quote");
-        System.out.println("Type emitted");
         return chars.emit(Token.Type.CHARACTER);
     }
 
     public Token lexString() {
-        System.out.println("String Located");
         match("\"{1}");
         while(peek("[A-Za-z_,0-9!@#$%^&*()\\.]*(\\\\)*\\s*[']*")) { // walks through and brings in all letters & digits
             if(peek("'*")) match("'*");
@@ -154,55 +138,44 @@ public final class Lexer {
             match("[A-Za-z_,0-9!@#$%^&*()\\.]*[']*");
         }
         if (peek("\"{1,2}")) {
-            System.out.println("closing quote found");
             match("\"{1}");
             return chars.emit(Token.Type.STRING);
         }
         else {
-            System.out.println("closing quote not found");
             throw new ParseException("expected closing quote", chars.index);
         }
     }
 
     public void lexEscape() {
-        System.out.println("Escape located");
         if(peek("\\\\")) {
-            System.out.println("slash matched");
             match("\\\\");
         }
 
         if(peek("[brnt\"'\\\\]")) {
-            System.out.println("supported escape found");
             match("[brnt\"'\\\\]");
         }
         else {
-            System.out.println("unsupported escape");
             throw new ParseException("unsupported escape character", chars.index);
         }
     }
 
     public Token lexOperator() {
-        System.out.println("Operator located");
 
 
         if (peek("<","=")) {
             match("<","=");
-            System.out.println("match double");
             return chars.emit(Token.Type.OPERATOR);
         }
         else if (peek(">","=")){
             match(">","=");
-            System.out.println("match double");
             return chars.emit(Token.Type.OPERATOR);
         }
         else if(peek("!","=")) {
             match("!","=");
-            System.out.println("match double");
             return chars.emit(Token.Type.OPERATOR);
         }
         else if(peek("=","=")){
             match("=","=");
-            System.out.println("match double");
             return chars.emit(Token.Type.OPERATOR);
         }
 
