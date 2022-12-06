@@ -291,6 +291,18 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expression.Binary ast) {
+
+        if (ast.getOperator().equals("^")){
+            // print the values of left and right inside of math.pow
+            print("Math.pow(");
+            print(ast.getLeft());
+            print(", ");
+            print(ast.getRight());
+            print(")");
+            //print("math.pow(" + ast.getLeft() + ", " + ast.getRight() + ")");
+            return null;
+        }
+
         visit(ast.getLeft());
         switch (ast.getOperator()) {
             case "&&":
@@ -310,6 +322,9 @@ public final class Generator implements Ast.Visitor<Void> {
                 break;
             case "/":
                 print(" / ");
+                break;
+            case "%":
+                print(" % ");
                 break;
             default:
                 print(" ", ast.getOperator(), " ");

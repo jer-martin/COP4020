@@ -80,30 +80,17 @@ public final class Lexer {
     public Token lexNumber() {
         if (peek("[\\\\+-]?")) match("[\\\\+-]?"); // takes in sign
 
-        if (peek("0")) { // leading zero check and logic branches
-            if (peek("(\\.){1}")) {
-                while (match("[0-9]+")) ; // takes in the rest of the digits
-                return chars.emit(Token.Type.DECIMAL);
-            }
-            else {
-                throw new ParseException("expected decimal point after leading zero", chars.index);
-            }
+        while (peek("\\d"))
+            match("\\d");
+        if (peek("[.]", "\\d")) {
+            match("[.]");
+            while (peek("\\d"))
+                match("\\d");
+            return chars.emit(Token.Type.DECIMAL);
         }
-
-        while (match("[0-9]+")); // no leading zero logic branch
-        if (peek("(\\.){1}")) {
-            match("(\\.){1}");
-            if (peek("[0-9]+")) {
-                while (match("[0-9]+")) ; // takes in the rest of the digits
-                return chars.emit(Token.Type.DECIMAL);
-            }
-            else {
-                throw new ParseException("Trailing decimal", chars.index);
-            }
-        }
-
-        while (match("[0-9]+")) ; // takes in the rest of the digits
         return chars.emit(Token.Type.INTEGER);
+
+
     }
 
     public Token lexCharacter() {
@@ -126,24 +113,23 @@ public final class Lexer {
     }
 
     public Token lexString() {
-        match("\"{1}");
-        while(peek("[A-Za-z_,0-9!@#$%^&*()\\.]*(\\\\)*\\s*[']*")) { // walks through and brings in all letters & digits
-            if(peek("'*")) match("'*");
-            if (peek("(\\\\)*")) {
+       if (peek("\"")) match("\""); // takes in first quote
+
+        while (peek("[^\"\\\\\\n\\r]")) { // checks for everything but quotes and slashes and escapes
+            if (peek("\\\\")) { // checks for slash
                 lexEscape();
             }
-            if (peek("\\s*")) {
-                match("\\s*");
+            else {
+                match("."); // checks for everything else
             }
-            match("[A-Za-z_,0-9!@#$%^&*()\\.]*[']*");
         }
-        if (peek("\"{1,2}")) {
-            match("\"{1}");
-            return chars.emit(Token.Type.STRING);
-        }
+
+        if (peek("\"")) match("\""); // takes in closing quote
         else {
-            throw new ParseException("expected closing quote", chars.index);
+            throw new ParseException("expected closing string quote", chars.index);
         }
+        return chars.emit(Token.Type.STRING);
+
     }
 
     public void lexEscape() {

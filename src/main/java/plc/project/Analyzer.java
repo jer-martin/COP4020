@@ -29,17 +29,31 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Source ast) {
-        if (scope.lookupFunction("main", 0) != null  && scope.lookupFunction("main", 0).getReturnType() == Environment.Type.INTEGER) {
-           for (Ast.Global global : ast.getGlobals()) {
-              visit(global);
+       try {
+           boolean mainExists = false;
+           if (!ast.getGlobals().isEmpty()) {
+              for (Ast.Global global : ast.getGlobals()) {
+                  visit(global);
+              }
            }
-           for (Ast.Function function : ast.getFunctions()) {
-              visit(function);
-           }
-        }
-        else {
-            throw new RuntimeException("The function main/0 is not defined in this scope.");
-        }
+
+              if (!ast.getFunctions().isEmpty()) {
+                  for (Ast.Function function : ast.getFunctions()) {
+                    visit(function);
+                    if (function.getName().equals("main") && function.getParameters().isEmpty() && function.getReturnTypeName().get().equals("Integer")) {
+                         mainExists = true;
+                    }
+                  }
+              }
+
+
+                if (!mainExists) {
+                    throw new RuntimeException("Main function does not exist");
+                }
+       }
+       catch (Exception e) {
+           throw new RuntimeException(e);
+       }
         return null;
     }
 
@@ -341,7 +355,7 @@ public final class Analyzer implements Ast.Visitor<Void> {
                     throw new RuntimeException("invalid types for addition");
                 }
             }
-            else if (op.equals("-") || op.equals("*") || op.equals("/")) {
+            else if (op.equals("-") || op.equals("*") || op.equals("/") || op.equals("%") || op.equals("^")) {
                 if (left.getType().equals(Environment.Type.DECIMAL) || left.getType().equals(Environment.Type.INTEGER)) {
                    ast.setType(left.getType());
                 }
